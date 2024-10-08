@@ -1,7 +1,6 @@
 import { config, list } from '@keystone-6/core';
 import { allowAll } from '@keystone-6/core/access';
 import { text } from '@keystone-6/core/fields';
-
 export default config({
   db: {
     provider: 'sqlite',
@@ -9,12 +8,12 @@ export default config({
   },
   lists: {
     Resident: list({
-      access: allowAll,
-      fields: {
-        name: text({ validation: { isRequired: true } }),
-        email: text({ validation: { isRequired: true }, isIndexed: 'unique' }),
-        street: text({ validation: { isRequired: true } }),
-        number: text({ validation: { isRequired: true } }),
+    access: allowAll,
+    fields: {
+      name: text({ validation: { isRequired: true } }),
+      email: text({ validation: { isRequired: true }, isIndexed: 'unique' }),
+      street: text({ validation: { isRequired: true } }),
+      number: text({ validation: { isRequired: true } }),
       },
     }),
   },

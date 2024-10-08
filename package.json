@@ -1,8 +1,8 @@
 {
   "name": "2024-3-ISC09-Deteccion-Automatica-de-Estudiantes-y-Control-de-Asistencia",
-  "version": "1.0.0",
-  "main": "index.js",
-  "repository": "https://github.com/ISC-UPA/2024-3-ISC09-Deteccion-Automatica-de-Estudiantes-y-Control-de-Asistencia.git",
-  "author": "Leonardo Ausencio Martinez Torres <up210582@alumnos.upa.edu.mx>",
-  "license": "MIT"
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+
 }

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../keystone.ts"],
+  "sourcesContent": ["import { config, list } from '@keystone-6/core';\r\nimport { allowAll } from '@keystone-6/core/access';\r\nimport { text } from '@keystone-6/core/fields';\r\nexport default config({\r\n  db: {\r\n    provider: 'sqlite',\r\n    url: 'file:./db/vivehub.db',\r\n  },\r\n  lists: {\r\n    Resident: list({\r\n    access: allowAll,\r\n    fields: {\r\n      name: text({ validation: { isRequired: true } }),\r\n      email: text({ validation: { isRequired: true }, isIndexed: 'unique' }),\r\n      street: text({ validation: { isRequired: true } }),\r\n      number: text({ validation: { isRequired: true } }),\r\n      },\r\n    }),\r\n  },\r\n});\r\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,kBAA6B;AAC7B,oBAAyB;AACzB,oBAAqB;AACrB,IAAO,uBAAQ,oBAAO;AAAA,EACpB,IAAI;AAAA,IACF,UAAU;AAAA,IACV,KAAK;AAAA,EACP;AAAA,EACA,OAAO;AAAA,IACL,cAAU,kBAAK;AAAA,MACf,QAAQ;AAAA,MACR,QAAQ;AAAA,QACN,UAAM,oBAAK,EAAE,YAAY,EAAE,YAAY,KAAK,EAAE,CAAC;AAAA,QAC/C,WAAO,oBAAK,EAAE,YAAY,EAAE,YAAY,KAAK,GAAG,WAAW,SAAS,CAAC;AAAA,QACrE,YAAQ,oBAAK,EAAE,YAAY,EAAE,YAAY,KAAK,EAAE,CAAC;AAAA,QACjD,YAAQ,oBAAK,EAAE,YAAY,EAAE,YAAY,KAAK,EAAE,CAAC;AAAA,MACjD;AAAA,IACF,CAAC;AAAA,EACH;AACF,CAAC;",
+  "names": []
+}
