@@ -1,0 +1,95 @@
+# OSX
+#
+.DS_Store
+
+# yarn monorepo
+/.yarn
+yarn.lock
+.pnp.loader.mjs
+.pnp.cjs
+
+# Node modules
+/node_modules
+/packages/*/node_modules
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+packages/*/node_modules
+
+# Keystone specific
+/packages/vive-hub-api/.keystone
+/packages/vive-hub-api/db
+
+# React Native specific
+# React Native Packager
+*.packager
+*.packager.lock
+
+# Expo
+.expo
+.expo-shared
+
+# Metro
+.expo-shared/assets.json
+.expo-shared/assets.json.lock
+
+# Android
+*.apk
+*.ap_
+*.dex
+*.class
+*.so
+
+# Xcode
+#
+build/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+project.xcworkspace
+
+# Android/IntelliJ
+#
+build/
+.idea
+.gradle
+local.properties
+*.iml
+
+# BUCK
+buck-out/
+\.buckd/
+*.keystore
+
+# Fastlane
+#
+# It is recommended to not store the screenshots in the git repo. Instead, use Fastlane to re-generate the
+# screenshots whenever they are needed.
+# For more information about the recommended setup visit:
+# https://docs.fastlane.tools/best-practices/source-control/
+
+*/fastlane/report.xml
+*/fastlane/Preview.html
+*/fastlane/screenshots
+
+# Bundle artifact
+*.jsbundle
+yarn.lock

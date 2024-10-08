@@ -1,0 +1,8 @@
+{
+  "name": "2024-3-ISC09-Deteccion-Automatica-de-Estudiantes-y-Control-de-Asistencia",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ]
+
+}
