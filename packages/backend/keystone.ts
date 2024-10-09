@@ -4,7 +4,7 @@ import { text } from '@keystone-6/core/fields';
 export default config({
   db: {
     provider: 'sqlite',
-    url: 'file:./db/vivehub.db',
+    url: 'file:./db/deteccionestudiantes.db',
   },
   lists: {
     Resident: list({

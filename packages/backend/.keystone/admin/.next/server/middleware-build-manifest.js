@@ -1,1 +1,34 @@
-self.__BUILD_MANIFEST={polyfillFiles:["static/chunks/polyfills-42372ed130431b0a.js"],devFiles:[],ampDevFiles:[],lowPriorityFiles:[],rootMainFiles:[],pages:{"/":["static/chunks/webpack-5146130448d8adf7.js","static/chunks/framework-07527b6014960c46.js","static/chunks/main-51d466ad81fd9bf4.js","static/chunks/pages/index-7671366e15c03a2a.js"],"/_app":["static/chunks/webpack-5146130448d8adf7.js","static/chunks/framework-07527b6014960c46.js","static/chunks/main-51d466ad81fd9bf4.js","static/chunks/pages/_app-bd5f87c2ffa3dd95.js"],"/_error":["static/chunks/webpack-5146130448d8adf7.js","static/chunks/framework-07527b6014960c46.js","static/chunks/main-51d466ad81fd9bf4.js","static/chunks/pages/_error-2d8dabd7182b44a3.js"],"/no-access":["static/chunks/webpack-5146130448d8adf7.js","static/chunks/framework-07527b6014960c46.js","static/chunks/main-51d466ad81fd9bf4.js","static/chunks/pages/no-access-48bdcf8fed4a38ef.js"],"/residents":["static/chunks/webpack-5146130448d8adf7.js","static/chunks/framework-07527b6014960c46.js","static/chunks/main-51d466ad81fd9bf4.js","static/chunks/233-8958a805f2ca094a.js","static/chunks/pages/residents-719f62e9470da1c8.js"],"/residents/[id]":["static/chunks/webpack-5146130448d8adf7.js","static/chunks/framework-07527b6014960c46.js","static/chunks/main-51d466ad81fd9bf4.js","static/chunks/pages/residents/[id]-310e370f62801156.js"],"/residents/create":["static/chunks/webpack-5146130448d8adf7.js","static/chunks/framework-07527b6014960c46.js","static/chunks/main-51d466ad81fd9bf4.js","static/chunks/pages/residents/create-d986a80518270beb.js"]},ampFirstPages:[]},self.__BUILD_MANIFEST.lowPriorityFiles=["/static/"+process.env.__NEXT_BUILD_ID+"/_buildManifest.js",,"/static/"+process.env.__NEXT_BUILD_ID+"/_ssgManifest.js"];
+self.__BUILD_MANIFEST = {
+  "polyfillFiles": [
+    "static/chunks/polyfills.js"
+  ],
+  "devFiles": [
+    "static/chunks/react-refresh.js"
+  ],
+  "ampDevFiles": [],
+  "lowPriorityFiles": [],
+  "rootMainFiles": [],
+  "pages": {
+    "/": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/index.js"
+    ],
+    "/_app": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/_app.js"
+    ],
+    "/_error": [
+      "static/chunks/webpack.js",
+      "static/chunks/main.js",
+      "static/chunks/pages/_error.js"
+    ]
+  },
+  "ampFirstPages": []
+};
+self.__BUILD_MANIFEST.lowPriorityFiles = [
+"/static/" + process.env.__NEXT_BUILD_ID + "/_buildManifest.js",
+,"/static/" + process.env.__NEXT_BUILD_ID + "/_ssgManifest.js",
+
+];
