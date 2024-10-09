@@ -28,7 +28,7 @@ var import_fields = require("@keystone-6/core/fields");
 var keystone_default = (0, import_core.config)({
   db: {
     provider: "sqlite",
-    url: "file:./db/vivehub.db"
+    url: "file:./db/deteccionestudiantes.db"
   },
   lists: {
     Resident: (0, import_core.list)({

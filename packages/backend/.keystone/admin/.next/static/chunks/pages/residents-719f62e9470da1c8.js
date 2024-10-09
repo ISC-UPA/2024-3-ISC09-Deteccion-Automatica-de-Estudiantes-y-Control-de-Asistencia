@@ -1,1 +1,0 @@
-(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[214],{6773:function(n,e,t){(window.__NEXT_P=window.__NEXT_P||[]).push(["/residents",function(){return t(8276)}])},8276:function(n,e,t){"use strict";t.r(e);var u=t(2233);e.default=(0,u.d)({listKey:"Resident"})}},function(n){n.O(0,[233,888,774,179],function(){return n(n.s=6773)}),_N_E=n.O()}]);
