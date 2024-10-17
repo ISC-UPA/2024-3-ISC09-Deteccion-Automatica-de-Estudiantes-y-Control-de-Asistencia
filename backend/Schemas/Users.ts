@@ -14,7 +14,7 @@ export const user = {
         { label: 'Docent', value: 'Docent' },
         { label: 'Student', value: 'Student' },
       ],
-      defaultValue: 'resident',
+      defaultValue: 'Student',
     }),
     profilePicture: text(),
     accountStatus: select({

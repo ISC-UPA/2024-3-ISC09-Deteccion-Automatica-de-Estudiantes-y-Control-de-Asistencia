@@ -11,10 +11,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Resident {
+model Personal {
   id     String @id @default(cuid())
   name   String @default("")
   email  String @unique @default("")
-  street String @default("")
-  number String @default("")
+  mayor  String @default("")
+  quarer String @default("")
 }

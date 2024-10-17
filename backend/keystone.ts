@@ -4,16 +4,16 @@ import { text } from '@keystone-6/core/fields';
 export default config({
   db: {
     provider: 'sqlite',
-    url: 'file:./db/vivehub.db',
+    url: 'file:./db/ClassAtendant.db',
   },
   lists: {
-    Resident: list({
+    Personal: list({
     access: allowAll,
     fields: {
       name: text({ validation: { isRequired: true } }),
       email: text({ validation: { isRequired: true }, isIndexed: 'unique' }),
-      street: text({ validation: { isRequired: true } }),
-      number: text({ validation: { isRequired: true } }),
+      mayor: text({ validation: { isRequired: true } }),
+      quarer: text({ validation: { isRequired: true } }),
       },
     }),
   },

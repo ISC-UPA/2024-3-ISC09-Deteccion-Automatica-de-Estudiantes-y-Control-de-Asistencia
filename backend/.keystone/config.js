@@ -28,16 +28,16 @@ var import_fields = require("@keystone-6/core/fields");
 var keystone_default = (0, import_core.config)({
   db: {
     provider: "sqlite",
-    url: "file:./db/vivehub.db"
+    url: "file:./db/ClassAtendant.db"
   },
   lists: {
-    Resident: (0, import_core.list)({
+    Personal: (0, import_core.list)({
       access: import_access.allowAll,
       fields: {
         name: (0, import_fields.text)({ validation: { isRequired: true } }),
         email: (0, import_fields.text)({ validation: { isRequired: true }, isIndexed: "unique" }),
-        street: (0, import_fields.text)({ validation: { isRequired: true } }),
-        number: (0, import_fields.text)({ validation: { isRequired: true } })
+        mayor: (0, import_fields.text)({ validation: { isRequired: true } }),
+        quarer: (0, import_fields.text)({ validation: { isRequired: true } })
       }
     })
   }
