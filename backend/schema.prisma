@@ -11,10 +11,36 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Personal {
-  id     String @id @default(cuid())
-  name   String @default("")
-  email  String @unique @default("")
-  mayor  String @default("")
-  quarer String @default("")
+model User {
+  id                                 String           @id @default(cuid())
+  fullName                           String           @default("")
+  email                              String           @default("")
+  phoneNumber                        String           @default("")
+  userRole                           String?          @default("Student")
+  profilePicture                     String           @default("")
+  accountStatus                      String?          @default("active")
+  adAuthenticationStatus             Boolean          @default(false)
+  from_Authentication_associatedUser Authentication[] @relation("Authentication_associatedUser")
+}
+
+model Authentication {
+  id                    String    @id @default(cuid())
+  tokenId               String    @unique @default("")
+  associatedUser        User?     @relation("Authentication_associatedUser", fields: [associatedUserId], references: [id])
+  associatedUserId      String?   @map("associatedUser")
+  expirationDate        DateTime?
+  authenticationType    String?
+  adAuthenticationToken String    @default("")
+  refreshToken          String    @default("")
+
+  @@index([associatedUserId])
+}
+
+model AzureADIntegration {
+  id                  String  @id @default(cuid())
+  adUserId            String  @unique @default("")
+  adTenantId          String  @default("")
+  roleMapping         String  @default("")
+  accessTokenValidity Boolean @default(false)
+  loginHistory        String  @default("")
 }

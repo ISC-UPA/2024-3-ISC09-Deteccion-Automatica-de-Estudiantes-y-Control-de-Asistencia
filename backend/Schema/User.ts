@@ -10,7 +10,6 @@ export const user = {
     userRole: select({
       options: [
         { label: 'Admin', value: 'admin' },
-        { label: 'Administrative', value: 'Administrative' },
         { label: 'Docent', value: 'Docent' },
         { label: 'Student', value: 'Student' },
       ],
