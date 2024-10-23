@@ -7,8 +7,8 @@ yarn.lock
 */.yarn
 
 #KeystoneJS
-vive-hub-api/.keystone/
-vive-hub-api/db/
+backend/.keystone/
+backend/db/
 *.log
 
 # Logs
@@ -26,12 +26,12 @@ yarn-error.log*
 */dist/
 
 # Expo
-vive-hub-app/node_modules/
-vive-hub-app/.expo/
-vive-hub-app/.expo-shared/
-vive-hub-app/dist/
-vive-hub-app/npm-debug.*
-vive-hub-app/web-build/
+ClassTrack/node_modules/
+ClassTrack/.expo/
+ClassTrack/.expo-shared/
+ClassTrack/dist/
+ClassTrack/npm-debug.*
+ClassTrack/web-build/
 *.jks
 *.p8
 *.p12

@@ -269,6 +269,57 @@ input AzureADIntegrationCreateInput {
   loginHistory: String
 }
 
+type Student {
+  id: ID!
+  name: String
+  email: String
+  street: String
+  number: String
+}
+
+input StudentWhereUniqueInput {
+  id: ID
+  email: String
+}
+
+input StudentWhereInput {
+  AND: [StudentWhereInput!]
+  OR: [StudentWhereInput!]
+  NOT: [StudentWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  email: StringFilter
+  street: StringFilter
+  number: StringFilter
+}
+
+input StudentOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  email: OrderDirection
+  street: OrderDirection
+  number: OrderDirection
+}
+
+input StudentUpdateInput {
+  name: String
+  email: String
+  street: String
+  number: String
+}
+
+input StudentUpdateArgs {
+  where: StudentWhereUniqueInput!
+  data: StudentUpdateInput!
+}
+
+input StudentCreateInput {
+  name: String
+  email: String
+  street: String
+  number: String
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -293,6 +344,12 @@ type Mutation {
   updateAzureADIntegrations(data: [AzureADIntegrationUpdateArgs!]!): [AzureADIntegration]
   deleteAzureADIntegration(where: AzureADIntegrationWhereUniqueInput!): AzureADIntegration
   deleteAzureADIntegrations(where: [AzureADIntegrationWhereUniqueInput!]!): [AzureADIntegration]
+  createStudent(data: StudentCreateInput!): Student
+  createStudents(data: [StudentCreateInput!]!): [Student]
+  updateStudent(where: StudentWhereUniqueInput!, data: StudentUpdateInput!): Student
+  updateStudents(data: [StudentUpdateArgs!]!): [Student]
+  deleteStudent(where: StudentWhereUniqueInput!): Student
+  deleteStudents(where: [StudentWhereUniqueInput!]!): [Student]
 }
 
 type Query {
@@ -305,6 +362,9 @@ type Query {
   azureADIntegration(where: AzureADIntegrationWhereUniqueInput!): AzureADIntegration
   azureADIntegrations(where: AzureADIntegrationWhereInput! = {}, orderBy: [AzureADIntegrationOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: AzureADIntegrationWhereUniqueInput): [AzureADIntegration!]
   azureADIntegrationsCount(where: AzureADIntegrationWhereInput! = {}): Int
+  student(where: StudentWhereUniqueInput!): Student
+  students(where: StudentWhereInput! = {}, orderBy: [StudentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: StudentWhereUniqueInput): [Student!]
+  studentsCount(where: StudentWhereInput! = {}): Int
   keystone: KeystoneMeta!
 }
 

@@ -44,3 +44,11 @@ model AzureADIntegration {
   accessTokenValidity Boolean @default(false)
   loginHistory        String  @default("")
 }
+
+model Student {
+  id     String @id @default(cuid())
+  name   String @default("")
+  email  String @unique @default("")
+  street String @default("")
+  number String @default("")
+}
