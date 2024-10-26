@@ -1,29 +1,56 @@
+// import { allowAll } from '@keystone-6/core/access';
+// import { text, select, checkbox } from '@keystone-6/core/fields';
+
+// export const user = {
+//   access: allowAll,
+//   fields: {
+//     fullName: text({ validation: { isRequired: true } }),
+//     email: text({ validation: { isRequired: true } }),
+//     phoneNumber: text({ validation: { isRequired: true } }),
+//     userRole: select({
+//       options: [
+//         { label: 'Admin', value: 'admin' },
+//         { label: 'Docent', value: 'Docent' },
+//         { label: 'Student', value: 'Student' },
+//       ],
+//       defaultValue: 'Student',
+//     }),
+//     profilePicture: text(),
+//     accountStatus: select({
+//       options: [
+//         { label: 'Active', value: 'active' },
+//         { label: 'Inactive', value: 'inactive' },
+//         { label: 'Suspended', value: 'suspended' },
+//       ],
+//       defaultValue: 'active',
+//     }),
+//     adAuthenticationStatus: checkbox(),
+//   },
+// };
+
 import { allowAll } from '@keystone-6/core/access';
-import { text, select, checkbox } from '@keystone-6/core/fields';
+import { text, select, password } from '@keystone-6/core/fields';
 
 export const user = {
   access: allowAll,
   fields: {
-    fullName: text({ validation: { isRequired: true } }),
-    email: text({ validation: { isRequired: true } }),
-    phoneNumber: text({ validation: { isRequired: true } }),
-    userRole: select({
+    name: text({ validation: { isRequired: true } }), // Nombre del usuario
+    email: text({ 
+      validation: { isRequired: true },
+      isIndexed: 'unique', // Para establecer el campo como único en la base de datos
+    }), 
+    password: password({ validation: { isRequired: true } }), // Contraseña
+    role: select({
       options: [
-        { label: 'Admin', value: 'admin' },
-        { label: 'Docent', value: 'Docent' },
-        { label: 'Student', value: 'Student' },
+        { label: 'Estudiante', value: 'student' },
+        { label: 'Profesor', value: 'teacher' },
+        { label: 'Administrador', value: 'administrator' },
       ],
-      defaultValue: 'Student',
+      defaultValue: 'student',
+      validation: { isRequired: true },
     }),
-    profilePicture: text(),
-    accountStatus: select({
-      options: [
-        { label: 'Active', value: 'active' },
-        { label: 'Inactive', value: 'inactive' },
-        { label: 'Suspended', value: 'suspended' },
-      ],
-      defaultValue: 'active',
-    }),
-    adAuthenticationStatus: checkbox(),
+    studentID: text(), // Solo para estudiantes, se puede dejar vacío
+    imageURL: text(), // URL de la imagen de perfil del usuario
+    embeddings: text(), // Representación de la imagen en texto para comparación facial
   },
 };

@@ -2,11 +2,19 @@ import { type Lists } from '.keystone/types';
 import { user } from './User';
 import { authentication } from './Autentication';
 import { azureADIntegration } from './AzureADIntegration';
-import { student } from './Student';
+import { recognitionLog } from "./RecognitionLog";
+import { classSchema } from "./Class";
+import { attendance } from "./Attendance";
+import { faceComparison } from "./FaceComparison";
+import { accessRecord } from "./AccessRecord";
 
 export const lists = {
     User: user,
     Authentication: authentication,
     AzureADIntegration: azureADIntegration,
-    Student: student,
+    RecognitionLog: recognitionLog,
+    Class: classSchema,
+    Attendance: attendance,
+    FaceComparison: faceComparison,
+    AccessRecord: accessRecord,
 }

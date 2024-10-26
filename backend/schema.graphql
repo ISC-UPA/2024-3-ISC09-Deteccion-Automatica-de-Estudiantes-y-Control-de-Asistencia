@@ -3,17 +3,22 @@
 
 type User {
   id: ID!
-  fullName: String
+  name: String
   email: String
-  phoneNumber: String
-  userRole: String
-  profilePicture: String
-  accountStatus: String
-  adAuthenticationStatus: Boolean
+  password: PasswordState
+  role: String
+  studentID: String
+  imageURL: String
+  embeddings: String
+}
+
+type PasswordState {
+  isSet: Boolean!
 }
 
 input UserWhereUniqueInput {
   id: ID
+  email: String
 }
 
 input UserWhereInput {
@@ -21,13 +26,12 @@ input UserWhereInput {
   OR: [UserWhereInput!]
   NOT: [UserWhereInput!]
   id: IDFilter
-  fullName: StringFilter
+  name: StringFilter
   email: StringFilter
-  phoneNumber: StringFilter
-  userRole: StringNullableFilter
-  profilePicture: StringFilter
-  accountStatus: StringNullableFilter
-  adAuthenticationStatus: BooleanFilter
+  role: StringFilter
+  studentID: StringFilter
+  imageURL: StringFilter
+  embeddings: StringFilter
 }
 
 input IDFilter {
@@ -69,34 +73,14 @@ input NestedStringFilter {
   not: NestedStringFilter
 }
 
-input StringNullableFilter {
-  equals: String
-  in: [String!]
-  notIn: [String!]
-  lt: String
-  lte: String
-  gt: String
-  gte: String
-  contains: String
-  startsWith: String
-  endsWith: String
-  not: StringNullableFilter
-}
-
-input BooleanFilter {
-  equals: Boolean
-  not: BooleanFilter
-}
-
 input UserOrderByInput {
   id: OrderDirection
-  fullName: OrderDirection
+  name: OrderDirection
   email: OrderDirection
-  phoneNumber: OrderDirection
-  userRole: OrderDirection
-  profilePicture: OrderDirection
-  accountStatus: OrderDirection
-  adAuthenticationStatus: OrderDirection
+  role: OrderDirection
+  studentID: OrderDirection
+  imageURL: OrderDirection
+  embeddings: OrderDirection
 }
 
 enum OrderDirection {
@@ -105,13 +89,13 @@ enum OrderDirection {
 }
 
 input UserUpdateInput {
-  fullName: String
+  name: String
   email: String
-  phoneNumber: String
-  userRole: String
-  profilePicture: String
-  accountStatus: String
-  adAuthenticationStatus: Boolean
+  password: String
+  role: String
+  studentID: String
+  imageURL: String
+  embeddings: String
 }
 
 input UserUpdateArgs {
@@ -120,13 +104,13 @@ input UserUpdateArgs {
 }
 
 input UserCreateInput {
-  fullName: String
+  name: String
   email: String
-  phoneNumber: String
-  userRole: String
-  profilePicture: String
-  accountStatus: String
-  adAuthenticationStatus: Boolean
+  password: String
+  role: String
+  studentID: String
+  imageURL: String
+  embeddings: String
 }
 
 type Authentication {
@@ -154,7 +138,7 @@ input AuthenticationWhereInput {
   tokenId: StringFilter
   associatedUser: UserWhereInput
   expirationDate: DateTimeNullableFilter
-  authenticationType: StringNullableFilter
+  authenticationType: StringFilter
   adAuthenticationToken: StringFilter
   refreshToken: StringFilter
 }
@@ -218,8 +202,9 @@ type AzureADIntegration {
   adUserId: String
   adTenantId: String
   roleMapping: String
-  accessTokenValidity: Boolean
+  accessTokenValidity: String
   loginHistory: String
+  user: User
 }
 
 input AzureADIntegrationWhereUniqueInput {
@@ -235,8 +220,23 @@ input AzureADIntegrationWhereInput {
   adUserId: StringFilter
   adTenantId: StringFilter
   roleMapping: StringFilter
-  accessTokenValidity: BooleanFilter
+  accessTokenValidity: StringNullableFilter
   loginHistory: StringFilter
+  user: UserWhereInput
+}
+
+input StringNullableFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: StringNullableFilter
 }
 
 input AzureADIntegrationOrderByInput {
@@ -252,8 +252,9 @@ input AzureADIntegrationUpdateInput {
   adUserId: String
   adTenantId: String
   roleMapping: String
-  accessTokenValidity: Boolean
+  accessTokenValidity: String
   loginHistory: String
+  user: UserRelateToOneForUpdateInput
 }
 
 input AzureADIntegrationUpdateArgs {
@@ -265,59 +266,328 @@ input AzureADIntegrationCreateInput {
   adUserId: String
   adTenantId: String
   roleMapping: String
-  accessTokenValidity: Boolean
+  accessTokenValidity: String
   loginHistory: String
+  user: UserRelateToOneForCreateInput
 }
 
-type Student {
+type RecognitionLog {
+  id: ID!
+  timestamp: DateTime
+  success: String
+  confidence: Float
+  imageURL: String
+  errorDetails: String
+  user: User
+}
+
+input RecognitionLogWhereUniqueInput {
+  id: ID
+}
+
+input RecognitionLogWhereInput {
+  AND: [RecognitionLogWhereInput!]
+  OR: [RecognitionLogWhereInput!]
+  NOT: [RecognitionLogWhereInput!]
+  id: IDFilter
+  timestamp: DateTimeFilter
+  success: StringNullableFilter
+  confidence: FloatFilter
+  imageURL: StringFilter
+  errorDetails: StringFilter
+  user: UserWhereInput
+}
+
+input DateTimeFilter {
+  equals: DateTime
+  in: [DateTime!]
+  notIn: [DateTime!]
+  lt: DateTime
+  lte: DateTime
+  gt: DateTime
+  gte: DateTime
+  not: DateTimeFilter
+}
+
+input FloatFilter {
+  equals: Float
+  in: [Float!]
+  notIn: [Float!]
+  lt: Float
+  lte: Float
+  gt: Float
+  gte: Float
+  not: FloatFilter
+}
+
+input RecognitionLogOrderByInput {
+  id: OrderDirection
+  timestamp: OrderDirection
+  success: OrderDirection
+  confidence: OrderDirection
+  imageURL: OrderDirection
+  errorDetails: OrderDirection
+}
+
+input RecognitionLogUpdateInput {
+  timestamp: DateTime
+  success: String
+  confidence: Float
+  imageURL: String
+  errorDetails: String
+  user: UserRelateToOneForUpdateInput
+}
+
+input RecognitionLogUpdateArgs {
+  where: RecognitionLogWhereUniqueInput!
+  data: RecognitionLogUpdateInput!
+}
+
+input RecognitionLogCreateInput {
+  timestamp: DateTime
+  success: String
+  confidence: Float
+  imageURL: String
+  errorDetails: String
+  user: UserRelateToOneForCreateInput
+}
+
+type Class {
   id: ID!
   name: String
-  email: String
-  street: String
-  number: String
+  description: String
+  schedule: String
+  teacher: User
 }
 
-input StudentWhereUniqueInput {
+input ClassWhereUniqueInput {
   id: ID
-  email: String
 }
 
-input StudentWhereInput {
-  AND: [StudentWhereInput!]
-  OR: [StudentWhereInput!]
-  NOT: [StudentWhereInput!]
+input ClassWhereInput {
+  AND: [ClassWhereInput!]
+  OR: [ClassWhereInput!]
+  NOT: [ClassWhereInput!]
   id: IDFilter
   name: StringFilter
-  email: StringFilter
-  street: StringFilter
-  number: StringFilter
+  description: StringFilter
+  schedule: StringFilter
+  teacher: UserWhereInput
 }
 
-input StudentOrderByInput {
+input ClassOrderByInput {
   id: OrderDirection
   name: OrderDirection
-  email: OrderDirection
-  street: OrderDirection
-  number: OrderDirection
+  description: OrderDirection
+  schedule: OrderDirection
 }
 
-input StudentUpdateInput {
+input ClassUpdateInput {
   name: String
-  email: String
-  street: String
-  number: String
+  description: String
+  schedule: String
+  teacher: UserRelateToOneForUpdateInput
 }
 
-input StudentUpdateArgs {
-  where: StudentWhereUniqueInput!
-  data: StudentUpdateInput!
+input ClassUpdateArgs {
+  where: ClassWhereUniqueInput!
+  data: ClassUpdateInput!
 }
 
-input StudentCreateInput {
+input ClassCreateInput {
   name: String
-  email: String
-  street: String
-  number: String
+  description: String
+  schedule: String
+  teacher: UserRelateToOneForCreateInput
+}
+
+type Attendance {
+  id: ID!
+  date: DateTime
+  recognized: String
+  confidenceScore: Float
+  imageCapturedURL: String
+  user: User
+  class: Class
+}
+
+input AttendanceWhereUniqueInput {
+  id: ID
+}
+
+input AttendanceWhereInput {
+  AND: [AttendanceWhereInput!]
+  OR: [AttendanceWhereInput!]
+  NOT: [AttendanceWhereInput!]
+  id: IDFilter
+  date: DateTimeFilter
+  recognized: StringNullableFilter
+  confidenceScore: FloatFilter
+  imageCapturedURL: StringFilter
+  user: UserWhereInput
+  class: ClassWhereInput
+}
+
+input AttendanceOrderByInput {
+  id: OrderDirection
+  date: OrderDirection
+  recognized: OrderDirection
+  confidenceScore: OrderDirection
+  imageCapturedURL: OrderDirection
+}
+
+input AttendanceUpdateInput {
+  date: DateTime
+  recognized: String
+  confidenceScore: Float
+  imageCapturedURL: String
+  user: UserRelateToOneForUpdateInput
+  class: ClassRelateToOneForUpdateInput
+}
+
+input ClassRelateToOneForUpdateInput {
+  create: ClassCreateInput
+  connect: ClassWhereUniqueInput
+  disconnect: Boolean
+}
+
+input AttendanceUpdateArgs {
+  where: AttendanceWhereUniqueInput!
+  data: AttendanceUpdateInput!
+}
+
+input AttendanceCreateInput {
+  date: DateTime
+  recognized: String
+  confidenceScore: Float
+  imageCapturedURL: String
+  user: UserRelateToOneForCreateInput
+  class: ClassRelateToOneForCreateInput
+}
+
+input ClassRelateToOneForCreateInput {
+  create: ClassCreateInput
+  connect: ClassWhereUniqueInput
+}
+
+type FaceComparison {
+  id: ID!
+  comparisonDate: DateTime
+  imageCapturedURL: String
+  confidenceScore: Float
+  comparisonResult: String
+  attendance: Attendance
+}
+
+input FaceComparisonWhereUniqueInput {
+  id: ID
+}
+
+input FaceComparisonWhereInput {
+  AND: [FaceComparisonWhereInput!]
+  OR: [FaceComparisonWhereInput!]
+  NOT: [FaceComparisonWhereInput!]
+  id: IDFilter
+  comparisonDate: DateTimeFilter
+  imageCapturedURL: StringFilter
+  confidenceScore: FloatFilter
+  comparisonResult: StringNullableFilter
+  attendance: AttendanceWhereInput
+}
+
+input FaceComparisonOrderByInput {
+  id: OrderDirection
+  comparisonDate: OrderDirection
+  imageCapturedURL: OrderDirection
+  confidenceScore: OrderDirection
+  comparisonResult: OrderDirection
+}
+
+input FaceComparisonUpdateInput {
+  comparisonDate: DateTime
+  imageCapturedURL: String
+  confidenceScore: Float
+  comparisonResult: String
+  attendance: AttendanceRelateToOneForUpdateInput
+}
+
+input AttendanceRelateToOneForUpdateInput {
+  create: AttendanceCreateInput
+  connect: AttendanceWhereUniqueInput
+  disconnect: Boolean
+}
+
+input FaceComparisonUpdateArgs {
+  where: FaceComparisonWhereUniqueInput!
+  data: FaceComparisonUpdateInput!
+}
+
+input FaceComparisonCreateInput {
+  comparisonDate: DateTime
+  imageCapturedURL: String
+  confidenceScore: Float
+  comparisonResult: String
+  attendance: AttendanceRelateToOneForCreateInput
+}
+
+input AttendanceRelateToOneForCreateInput {
+  create: AttendanceCreateInput
+  connect: AttendanceWhereUniqueInput
+}
+
+type AccessRecord {
+  id: ID!
+  title: String
+  accessType: String
+  entryDateTime: DateTime
+  exitDateTime: DateTime
+  personAccessing: User
+}
+
+input AccessRecordWhereUniqueInput {
+  id: ID
+  title: String
+}
+
+input AccessRecordWhereInput {
+  AND: [AccessRecordWhereInput!]
+  OR: [AccessRecordWhereInput!]
+  NOT: [AccessRecordWhereInput!]
+  id: IDFilter
+  title: StringFilter
+  accessType: StringFilter
+  entryDateTime: DateTimeFilter
+  exitDateTime: DateTimeNullableFilter
+  personAccessing: UserWhereInput
+}
+
+input AccessRecordOrderByInput {
+  id: OrderDirection
+  title: OrderDirection
+  accessType: OrderDirection
+  entryDateTime: OrderDirection
+  exitDateTime: OrderDirection
+}
+
+input AccessRecordUpdateInput {
+  title: String
+  accessType: String
+  entryDateTime: DateTime
+  exitDateTime: DateTime
+  personAccessing: UserRelateToOneForUpdateInput
+}
+
+input AccessRecordUpdateArgs {
+  where: AccessRecordWhereUniqueInput!
+  data: AccessRecordUpdateInput!
+}
+
+input AccessRecordCreateInput {
+  title: String
+  accessType: String
+  entryDateTime: DateTime
+  exitDateTime: DateTime
+  personAccessing: UserRelateToOneForCreateInput
 }
 
 """
@@ -344,12 +614,36 @@ type Mutation {
   updateAzureADIntegrations(data: [AzureADIntegrationUpdateArgs!]!): [AzureADIntegration]
   deleteAzureADIntegration(where: AzureADIntegrationWhereUniqueInput!): AzureADIntegration
   deleteAzureADIntegrations(where: [AzureADIntegrationWhereUniqueInput!]!): [AzureADIntegration]
-  createStudent(data: StudentCreateInput!): Student
-  createStudents(data: [StudentCreateInput!]!): [Student]
-  updateStudent(where: StudentWhereUniqueInput!, data: StudentUpdateInput!): Student
-  updateStudents(data: [StudentUpdateArgs!]!): [Student]
-  deleteStudent(where: StudentWhereUniqueInput!): Student
-  deleteStudents(where: [StudentWhereUniqueInput!]!): [Student]
+  createRecognitionLog(data: RecognitionLogCreateInput!): RecognitionLog
+  createRecognitionLogs(data: [RecognitionLogCreateInput!]!): [RecognitionLog]
+  updateRecognitionLog(where: RecognitionLogWhereUniqueInput!, data: RecognitionLogUpdateInput!): RecognitionLog
+  updateRecognitionLogs(data: [RecognitionLogUpdateArgs!]!): [RecognitionLog]
+  deleteRecognitionLog(where: RecognitionLogWhereUniqueInput!): RecognitionLog
+  deleteRecognitionLogs(where: [RecognitionLogWhereUniqueInput!]!): [RecognitionLog]
+  createClass(data: ClassCreateInput!): Class
+  createClasses(data: [ClassCreateInput!]!): [Class]
+  updateClass(where: ClassWhereUniqueInput!, data: ClassUpdateInput!): Class
+  updateClasses(data: [ClassUpdateArgs!]!): [Class]
+  deleteClass(where: ClassWhereUniqueInput!): Class
+  deleteClasses(where: [ClassWhereUniqueInput!]!): [Class]
+  createAttendance(data: AttendanceCreateInput!): Attendance
+  createAttendances(data: [AttendanceCreateInput!]!): [Attendance]
+  updateAttendance(where: AttendanceWhereUniqueInput!, data: AttendanceUpdateInput!): Attendance
+  updateAttendances(data: [AttendanceUpdateArgs!]!): [Attendance]
+  deleteAttendance(where: AttendanceWhereUniqueInput!): Attendance
+  deleteAttendances(where: [AttendanceWhereUniqueInput!]!): [Attendance]
+  createFaceComparison(data: FaceComparisonCreateInput!): FaceComparison
+  createFaceComparisons(data: [FaceComparisonCreateInput!]!): [FaceComparison]
+  updateFaceComparison(where: FaceComparisonWhereUniqueInput!, data: FaceComparisonUpdateInput!): FaceComparison
+  updateFaceComparisons(data: [FaceComparisonUpdateArgs!]!): [FaceComparison]
+  deleteFaceComparison(where: FaceComparisonWhereUniqueInput!): FaceComparison
+  deleteFaceComparisons(where: [FaceComparisonWhereUniqueInput!]!): [FaceComparison]
+  createAccessRecord(data: AccessRecordCreateInput!): AccessRecord
+  createAccessRecords(data: [AccessRecordCreateInput!]!): [AccessRecord]
+  updateAccessRecord(where: AccessRecordWhereUniqueInput!, data: AccessRecordUpdateInput!): AccessRecord
+  updateAccessRecords(data: [AccessRecordUpdateArgs!]!): [AccessRecord]
+  deleteAccessRecord(where: AccessRecordWhereUniqueInput!): AccessRecord
+  deleteAccessRecords(where: [AccessRecordWhereUniqueInput!]!): [AccessRecord]
 }
 
 type Query {
@@ -362,9 +656,21 @@ type Query {
   azureADIntegration(where: AzureADIntegrationWhereUniqueInput!): AzureADIntegration
   azureADIntegrations(where: AzureADIntegrationWhereInput! = {}, orderBy: [AzureADIntegrationOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: AzureADIntegrationWhereUniqueInput): [AzureADIntegration!]
   azureADIntegrationsCount(where: AzureADIntegrationWhereInput! = {}): Int
-  student(where: StudentWhereUniqueInput!): Student
-  students(where: StudentWhereInput! = {}, orderBy: [StudentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: StudentWhereUniqueInput): [Student!]
-  studentsCount(where: StudentWhereInput! = {}): Int
+  recognitionLog(where: RecognitionLogWhereUniqueInput!): RecognitionLog
+  recognitionLogs(where: RecognitionLogWhereInput! = {}, orderBy: [RecognitionLogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: RecognitionLogWhereUniqueInput): [RecognitionLog!]
+  recognitionLogsCount(where: RecognitionLogWhereInput! = {}): Int
+  class(where: ClassWhereUniqueInput!): Class
+  classes(where: ClassWhereInput! = {}, orderBy: [ClassOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ClassWhereUniqueInput): [Class!]
+  classesCount(where: ClassWhereInput! = {}): Int
+  attendance(where: AttendanceWhereUniqueInput!): Attendance
+  attendances(where: AttendanceWhereInput! = {}, orderBy: [AttendanceOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: AttendanceWhereUniqueInput): [Attendance!]
+  attendancesCount(where: AttendanceWhereInput! = {}): Int
+  faceComparison(where: FaceComparisonWhereUniqueInput!): FaceComparison
+  faceComparisons(where: FaceComparisonWhereInput! = {}, orderBy: [FaceComparisonOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: FaceComparisonWhereUniqueInput): [FaceComparison!]
+  faceComparisonsCount(where: FaceComparisonWhereInput! = {}): Int
+  accessRecord(where: AccessRecordWhereUniqueInput!): AccessRecord
+  accessRecords(where: AccessRecordWhereInput! = {}, orderBy: [AccessRecordOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: AccessRecordWhereUniqueInput): [AccessRecord!]
+  accessRecordsCount(where: AccessRecordWhereInput! = {}): Int
   keystone: KeystoneMeta!
 }
 
