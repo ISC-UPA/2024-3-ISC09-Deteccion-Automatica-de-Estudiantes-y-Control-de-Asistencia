@@ -48,85 +48,42 @@ var user = {
       defaultValue: "student",
       validation: { isRequired: true }
     }),
-    studentID: (0, import_fields.text)(),
+    studentID: (0, import_fields.text)()
     // Solo para estudiantes, se puede dejar vacío
-    imageURL: (0, import_fields.text)(),
-    // URL de la imagen de perfil del usuario
-    embeddings: (0, import_fields.text)()
-    // Representación de la imagen en texto para comparación facial
   }
 };
 
 // Schema/Autentication.ts
-var import_fields2 = require("@keystone-6/core/fields");
 var import_access2 = require("@keystone-6/core/access");
+var import_fields2 = require("@keystone-6/core/fields");
 var authentication = {
   access: import_access2.allowAll,
   fields: {
-    tokenId: (0, import_fields2.text)({
-      isIndexed: "unique",
-      // Establece el campo como único
-      validation: { isRequired: true }
-      // Campo requerido
-    }),
-    associatedUser: (0, import_fields2.relationship)({
-      ref: "User",
-      // Referencia a la lista de usuarios
-      many: false
-      // Relación uno a uno
-    }),
-    expirationDate: (0, import_fields2.timestamp)({
-      // No se establece un valor por defecto
-    }),
+    tokenId: (0, import_fields2.text)({ validation: { isRequired: true }, isIndexed: "unique" }),
+    associatedUser: (0, import_fields2.relationship)({ ref: "User" }),
+    expirationDate: (0, import_fields2.timestamp)(),
     authenticationType: (0, import_fields2.select)({
       options: [
         { label: "JWT", value: "jwt" },
         { label: "Azure AD", value: "azure_ad" }
-      ],
-      validation: { isRequired: true }
-      // Campo requerido
+      ]
     }),
     adAuthenticationToken: (0, import_fields2.text)(),
-    // Token de autenticación de Azure AD
     refreshToken: (0, import_fields2.text)()
-    // Token de actualización
   }
 };
 
 // Schema/AzureADIntegration.ts
-var import_fields3 = require("@keystone-6/core/fields");
 var import_access3 = require("@keystone-6/core/access");
+var import_fields3 = require("@keystone-6/core/fields");
 var azureADIntegration = {
   access: import_access3.allowAll,
   fields: {
-    adUserId: (0, import_fields3.text)({
-      isIndexed: "unique",
-      // Establece el campo como único
-      validation: { isRequired: true }
-      // Campo requerido
-    }),
-    adTenantId: (0, import_fields3.text)({
-      validation: { isRequired: true }
-      // Campo requerido
-    }),
+    adUserId: (0, import_fields3.text)({ validation: { isRequired: true }, isIndexed: "unique" }),
+    adTenantId: (0, import_fields3.text)({ validation: { isRequired: true } }),
     roleMapping: (0, import_fields3.text)(),
-    // Mapeo de roles
-    accessTokenValidity: (0, import_fields3.select)({
-      options: [
-        { label: "V\xE1lido", value: "true" },
-        { label: "Inv\xE1lido", value: "false" }
-      ],
-      defaultValue: "true",
-      ui: { displayMode: "segmented-control" }
-    }),
-    // Validez del token de acceso
-    loginHistory: (0, import_fields3.text)(),
-    // Historial de inicio de sesión
-    user: (0, import_fields3.relationship)({
-      ref: "User",
-      // Referencia a la lista de usuarios
-      many: false
-    })
+    accessTokenValidity: (0, import_fields3.checkbox)(),
+    loginHistory: (0, import_fields3.text)()
   }
 };
 
@@ -261,39 +218,21 @@ var faceComparison = {
   }
 };
 
-// Schema/AccessRecord.ts
-var import_fields8 = require("@keystone-6/core/fields");
+// Schema/RefPhoto.ts
 var import_access8 = require("@keystone-6/core/access");
-var accessRecord = {
+var import_fields8 = require("@keystone-6/core/fields");
+var refPhoto = {
   access: import_access8.allowAll,
   fields: {
-    title: (0, import_fields8.text)({
-      validation: { isRequired: true },
-      isIndexed: "unique"
-      // Establece el campo como único en la base de datos
-    }),
-    accessType: (0, import_fields8.select)({
-      options: [
-        { label: "Residente", value: "resident" },
-        { label: "Visitante", value: "visitor" },
-        { label: "Proveedor de servicios", value: "service_provider" }
-      ],
-      validation: { isRequired: true }
-      // Campo requerido
-    }),
-    entryDateTime: (0, import_fields8.timestamp)({
-      validation: { isRequired: true },
-      defaultValue: { kind: "now" }
-      // Establece la fecha y hora actuales por defecto
-    }),
-    exitDateTime: (0, import_fields8.timestamp)(),
-    // Puede ser NULL, así que no se establece un valor por defecto
-    personAccessing: (0, import_fields8.relationship)({
+    imageURL: (0, import_fields8.text)(),
+    // URL de la imagen de perfil del usuario
+    embeddings: (0, import_fields8.text)(),
+    // Representación de la imagen en texto para comparación facial
+    user: (0, import_fields8.relationship)({
       ref: "User",
-      // Referencia a la tabla User
+      // Referencia a la lista de usuarios
       many: false
     })
-    // El campo authorizedBy ha sido eliminado como mencionaste.
   }
 };
 
@@ -306,7 +245,7 @@ var lists = {
   Class: classSchema,
   Attendance: attendance,
   FaceComparison: faceComparison,
-  AccessRecord: accessRecord
+  RefPhot: refPhoto
 };
 
 // keystone.ts

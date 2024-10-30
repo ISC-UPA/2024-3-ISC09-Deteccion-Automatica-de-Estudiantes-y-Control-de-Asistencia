@@ -8,8 +8,6 @@ type User {
   password: PasswordState
   role: String
   studentID: String
-  imageURL: String
-  embeddings: String
 }
 
 type PasswordState {
@@ -30,8 +28,6 @@ input UserWhereInput {
   email: StringFilter
   role: StringFilter
   studentID: StringFilter
-  imageURL: StringFilter
-  embeddings: StringFilter
 }
 
 input IDFilter {
@@ -79,8 +75,6 @@ input UserOrderByInput {
   email: OrderDirection
   role: OrderDirection
   studentID: OrderDirection
-  imageURL: OrderDirection
-  embeddings: OrderDirection
 }
 
 enum OrderDirection {
@@ -94,8 +88,6 @@ input UserUpdateInput {
   password: String
   role: String
   studentID: String
-  imageURL: String
-  embeddings: String
 }
 
 input UserUpdateArgs {
@@ -109,8 +101,6 @@ input UserCreateInput {
   password: String
   role: String
   studentID: String
-  imageURL: String
-  embeddings: String
 }
 
 type Authentication {
@@ -138,7 +128,7 @@ input AuthenticationWhereInput {
   tokenId: StringFilter
   associatedUser: UserWhereInput
   expirationDate: DateTimeNullableFilter
-  authenticationType: StringFilter
+  authenticationType: StringNullableFilter
   adAuthenticationToken: StringFilter
   refreshToken: StringFilter
 }
@@ -152,6 +142,20 @@ input DateTimeNullableFilter {
   gt: DateTime
   gte: DateTime
   not: DateTimeNullableFilter
+}
+
+input StringNullableFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: StringNullableFilter
 }
 
 input AuthenticationOrderByInput {
@@ -202,9 +206,8 @@ type AzureADIntegration {
   adUserId: String
   adTenantId: String
   roleMapping: String
-  accessTokenValidity: String
+  accessTokenValidity: Boolean
   loginHistory: String
-  user: User
 }
 
 input AzureADIntegrationWhereUniqueInput {
@@ -220,23 +223,13 @@ input AzureADIntegrationWhereInput {
   adUserId: StringFilter
   adTenantId: StringFilter
   roleMapping: StringFilter
-  accessTokenValidity: StringNullableFilter
+  accessTokenValidity: BooleanFilter
   loginHistory: StringFilter
-  user: UserWhereInput
 }
 
-input StringNullableFilter {
-  equals: String
-  in: [String!]
-  notIn: [String!]
-  lt: String
-  lte: String
-  gt: String
-  gte: String
-  contains: String
-  startsWith: String
-  endsWith: String
-  not: StringNullableFilter
+input BooleanFilter {
+  equals: Boolean
+  not: BooleanFilter
 }
 
 input AzureADIntegrationOrderByInput {
@@ -252,9 +245,8 @@ input AzureADIntegrationUpdateInput {
   adUserId: String
   adTenantId: String
   roleMapping: String
-  accessTokenValidity: String
+  accessTokenValidity: Boolean
   loginHistory: String
-  user: UserRelateToOneForUpdateInput
 }
 
 input AzureADIntegrationUpdateArgs {
@@ -266,9 +258,8 @@ input AzureADIntegrationCreateInput {
   adUserId: String
   adTenantId: String
   roleMapping: String
-  accessTokenValidity: String
+  accessTokenValidity: Boolean
   loginHistory: String
-  user: UserRelateToOneForCreateInput
 }
 
 type RecognitionLog {
@@ -535,59 +526,48 @@ input AttendanceRelateToOneForCreateInput {
   connect: AttendanceWhereUniqueInput
 }
 
-type AccessRecord {
+type RefPhot {
   id: ID!
-  title: String
-  accessType: String
-  entryDateTime: DateTime
-  exitDateTime: DateTime
-  personAccessing: User
+  imageURL: String
+  embeddings: String
+  user: User
 }
 
-input AccessRecordWhereUniqueInput {
+input RefPhotWhereUniqueInput {
   id: ID
-  title: String
 }
 
-input AccessRecordWhereInput {
-  AND: [AccessRecordWhereInput!]
-  OR: [AccessRecordWhereInput!]
-  NOT: [AccessRecordWhereInput!]
+input RefPhotWhereInput {
+  AND: [RefPhotWhereInput!]
+  OR: [RefPhotWhereInput!]
+  NOT: [RefPhotWhereInput!]
   id: IDFilter
-  title: StringFilter
-  accessType: StringFilter
-  entryDateTime: DateTimeFilter
-  exitDateTime: DateTimeNullableFilter
-  personAccessing: UserWhereInput
+  imageURL: StringFilter
+  embeddings: StringFilter
+  user: UserWhereInput
 }
 
-input AccessRecordOrderByInput {
+input RefPhotOrderByInput {
   id: OrderDirection
-  title: OrderDirection
-  accessType: OrderDirection
-  entryDateTime: OrderDirection
-  exitDateTime: OrderDirection
+  imageURL: OrderDirection
+  embeddings: OrderDirection
 }
 
-input AccessRecordUpdateInput {
-  title: String
-  accessType: String
-  entryDateTime: DateTime
-  exitDateTime: DateTime
-  personAccessing: UserRelateToOneForUpdateInput
+input RefPhotUpdateInput {
+  imageURL: String
+  embeddings: String
+  user: UserRelateToOneForUpdateInput
 }
 
-input AccessRecordUpdateArgs {
-  where: AccessRecordWhereUniqueInput!
-  data: AccessRecordUpdateInput!
+input RefPhotUpdateArgs {
+  where: RefPhotWhereUniqueInput!
+  data: RefPhotUpdateInput!
 }
 
-input AccessRecordCreateInput {
-  title: String
-  accessType: String
-  entryDateTime: DateTime
-  exitDateTime: DateTime
-  personAccessing: UserRelateToOneForCreateInput
+input RefPhotCreateInput {
+  imageURL: String
+  embeddings: String
+  user: UserRelateToOneForCreateInput
 }
 
 """
@@ -638,12 +618,12 @@ type Mutation {
   updateFaceComparisons(data: [FaceComparisonUpdateArgs!]!): [FaceComparison]
   deleteFaceComparison(where: FaceComparisonWhereUniqueInput!): FaceComparison
   deleteFaceComparisons(where: [FaceComparisonWhereUniqueInput!]!): [FaceComparison]
-  createAccessRecord(data: AccessRecordCreateInput!): AccessRecord
-  createAccessRecords(data: [AccessRecordCreateInput!]!): [AccessRecord]
-  updateAccessRecord(where: AccessRecordWhereUniqueInput!, data: AccessRecordUpdateInput!): AccessRecord
-  updateAccessRecords(data: [AccessRecordUpdateArgs!]!): [AccessRecord]
-  deleteAccessRecord(where: AccessRecordWhereUniqueInput!): AccessRecord
-  deleteAccessRecords(where: [AccessRecordWhereUniqueInput!]!): [AccessRecord]
+  createRefPhot(data: RefPhotCreateInput!): RefPhot
+  createRefPhots(data: [RefPhotCreateInput!]!): [RefPhot]
+  updateRefPhot(where: RefPhotWhereUniqueInput!, data: RefPhotUpdateInput!): RefPhot
+  updateRefPhots(data: [RefPhotUpdateArgs!]!): [RefPhot]
+  deleteRefPhot(where: RefPhotWhereUniqueInput!): RefPhot
+  deleteRefPhots(where: [RefPhotWhereUniqueInput!]!): [RefPhot]
 }
 
 type Query {
@@ -668,9 +648,9 @@ type Query {
   faceComparison(where: FaceComparisonWhereUniqueInput!): FaceComparison
   faceComparisons(where: FaceComparisonWhereInput! = {}, orderBy: [FaceComparisonOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: FaceComparisonWhereUniqueInput): [FaceComparison!]
   faceComparisonsCount(where: FaceComparisonWhereInput! = {}): Int
-  accessRecord(where: AccessRecordWhereUniqueInput!): AccessRecord
-  accessRecords(where: AccessRecordWhereInput! = {}, orderBy: [AccessRecordOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: AccessRecordWhereUniqueInput): [AccessRecord!]
-  accessRecordsCount(where: AccessRecordWhereInput! = {}): Int
+  refPhot(where: RefPhotWhereUniqueInput!): RefPhot
+  refPhots(where: RefPhotWhereInput! = {}, orderBy: [RefPhotOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: RefPhotWhereUniqueInput): [RefPhot!]
+  refPhotsCount(where: RefPhotWhereInput! = {}): Int
   keystone: KeystoneMeta!
 }
 

@@ -12,20 +12,17 @@ generator client {
 }
 
 model User {
-  id                                 String               @id @default(cuid())
-  name                               String               @default("")
-  email                              String               @unique @default("")
+  id                                 String           @id @default(cuid())
+  name                               String           @default("")
+  email                              String           @unique @default("")
   password                           String
-  role                               String               @default("student")
-  studentID                          String               @default("")
-  imageURL                           String               @default("")
-  embeddings                         String               @default("")
-  from_Authentication_associatedUser Authentication[]     @relation("Authentication_associatedUser")
-  from_AzureADIntegration_user       AzureADIntegration[] @relation("AzureADIntegration_user")
-  from_RecognitionLog_user           RecognitionLog[]     @relation("RecognitionLog_user")
-  from_Class_teacher                 Class[]              @relation("Class_teacher")
-  from_Attendance_user               Attendance[]         @relation("Attendance_user")
-  from_AccessRecord_personAccessing  AccessRecord[]       @relation("AccessRecord_personAccessing")
+  role                               String           @default("student")
+  studentID                          String           @default("")
+  from_Authentication_associatedUser Authentication[] @relation("Authentication_associatedUser")
+  from_RecognitionLog_user           RecognitionLog[] @relation("RecognitionLog_user")
+  from_Class_teacher                 Class[]          @relation("Class_teacher")
+  from_Attendance_user               Attendance[]     @relation("Attendance_user")
+  from_RefPhot_user                  RefPhot[]        @relation("RefPhot_user")
 }
 
 model Authentication {
@@ -34,7 +31,7 @@ model Authentication {
   associatedUser        User?     @relation("Authentication_associatedUser", fields: [associatedUserId], references: [id])
   associatedUserId      String?   @map("associatedUser")
   expirationDate        DateTime?
-  authenticationType    String
+  authenticationType    String?
   adAuthenticationToken String    @default("")
   refreshToken          String    @default("")
 
@@ -46,12 +43,8 @@ model AzureADIntegration {
   adUserId            String  @unique @default("")
   adTenantId          String  @default("")
   roleMapping         String  @default("")
-  accessTokenValidity String? @default("true")
+  accessTokenValidity Boolean @default(false)
   loginHistory        String  @default("")
-  user                User?   @relation("AzureADIntegration_user", fields: [userId], references: [id])
-  userId              String? @map("user")
-
-  @@index([userId])
 }
 
 model RecognitionLog {
@@ -107,14 +100,12 @@ model FaceComparison {
   @@index([attendanceId])
 }
 
-model AccessRecord {
-  id                String    @id @default(cuid())
-  title             String    @unique @default("")
-  accessType        String
-  entryDateTime     DateTime  @default(now())
-  exitDateTime      DateTime?
-  personAccessing   User?     @relation("AccessRecord_personAccessing", fields: [personAccessingId], references: [id])
-  personAccessingId String?   @map("personAccessing")
+model RefPhot {
+  id         String  @id @default(cuid())
+  imageURL   String  @default("")
+  embeddings String  @default("")
+  user       User?   @relation("RefPhot_user", fields: [userId], references: [id])
+  userId     String? @map("user")
 
-  @@index([personAccessingId])
+  @@index([userId])
 }

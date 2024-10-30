@@ -17,4 +17,4 @@ export const lists = {
     Attendance: attendance,
     FaceComparison: faceComparison,
     RefPhot: refPhoto,
-}
+} 
