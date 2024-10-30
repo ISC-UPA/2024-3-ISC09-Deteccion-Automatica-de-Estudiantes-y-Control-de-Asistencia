@@ -5,8 +5,8 @@
 This monorepo contains multiple packages related to the ViveHUB application. The main packages are:
 
 - `RaspberryApp`: Placeholder for Raspberry Pi related applications.
-- `vive-hub-api`: Backend API built with KeystoneJS.
-- `vive-hub-app`: Frontend application built with React Native.
+- `backend`: Backend API built with KeystoneJS.
+- `ClassTrack`: Frontend application built with React Native.
 
 ## Repository Structure
 
@@ -16,7 +16,7 @@ This monorepo contains multiple packages related to the ViveHUB application. The
 
 This directory is currently a placeholder for future Raspberry Pi related applications.
 
-#### vive-hub-api
+#### backend
 
 This package contains the backend API for the ViveHUB application. It is built using KeystoneJS.
 
@@ -27,7 +27,7 @@ This package contains the backend API for the ViveHUB application. It is built u
 
 For more details, refer to the [README.md](packages/vive-hub-api/README.md) in the `vive-hub-api` directory.
 
-#### vive-hub-app
+#### ClassTrack
 
 This package contains the frontend application for the ViveHUB platform. It is built using React.
 
