@@ -6,7 +6,7 @@ import { recognitionLog } from "./RecognitionLog";
 import { classSchema } from "./Class";
 import { attendance } from "./Attendance";
 import { faceComparison } from "./FaceComparison";
-import { accessRecord } from "./AccessRecord";
+import { refPhoto } from './RefPhoto';
 
 export const lists = {
     User: user,
@@ -16,5 +16,5 @@ export const lists = {
     Class: classSchema,
     Attendance: attendance,
     FaceComparison: faceComparison,
-    AccessRecord: accessRecord,
+    RefPhot: refPhoto,
 }

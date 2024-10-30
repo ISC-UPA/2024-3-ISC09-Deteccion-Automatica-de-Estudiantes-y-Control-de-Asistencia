@@ -50,7 +50,6 @@ export const user = {
       validation: { isRequired: true },
     }),
     studentID: text(), // Solo para estudiantes, se puede dejar vacío
-    imageURL: text(), // URL de la imagen de perfil del usuario
-    embeddings: text(), // Representación de la imagen en texto para comparación facial
+  
   },
 };
