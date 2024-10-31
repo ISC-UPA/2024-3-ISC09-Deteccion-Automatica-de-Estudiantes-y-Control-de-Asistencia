@@ -12,17 +12,18 @@ generator client {
 }
 
 model User {
-  id                                 String           @id @default(cuid())
-  name                               String           @default("")
-  email                              String           @unique @default("")
+  id                                 String            @id @default(cuid())
+  name                               String            @default("")
+  email                              String            @unique @default("")
   password                           String
-  role                               String           @default("student")
-  studentID                          String           @default("")
-  from_Authentication_associatedUser Authentication[] @relation("Authentication_associatedUser")
-  from_RecognitionLog_user           RecognitionLog[] @relation("RecognitionLog_user")
-  from_Class_teacher                 Class[]          @relation("Class_teacher")
-  from_Attendance_user               Attendance[]     @relation("Attendance_user")
-  from_RefPhot_user                  RefPhot[]        @relation("RefPhot_user")
+  role                               String            @default("student")
+  studentID                          String            @default("")
+  userInstitutions                   UserInstitution[] @relation("UserInstitution_user")
+  from_Authentication_associatedUser Authentication[]  @relation("Authentication_associatedUser")
+  from_RecognitionLog_user           RecognitionLog[]  @relation("RecognitionLog_user")
+  from_Class_teacher                 Class[]           @relation("Class_teacher")
+  from_Attendance_user               Attendance[]      @relation("Attendance_user")
+  from_RefPhot_user                  RefPhot[]         @relation("RefPhot_user")
 }
 
 model Authentication {
@@ -108,4 +109,22 @@ model RefPhot {
   userId     String? @map("user")
 
   @@index([userId])
+}
+
+model Institution {
+  id               String            @id @default(cuid())
+  name             String            @default("")
+  size             String
+  userInstitutions UserInstitution[] @relation("UserInstitution_institution")
+}
+
+model UserInstitution {
+  id            String       @id @default(cuid())
+  user          User?        @relation("UserInstitution_user", fields: [userId], references: [id])
+  userId        String?      @map("user")
+  institution   Institution? @relation("UserInstitution_institution", fields: [institutionId], references: [id])
+  institutionId String?      @map("institution")
+
+  @@index([userId])
+  @@index([institutionId])
 }

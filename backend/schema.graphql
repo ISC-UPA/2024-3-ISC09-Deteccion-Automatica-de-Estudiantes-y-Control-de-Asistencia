@@ -8,6 +8,8 @@ type User {
   password: PasswordState
   role: String
   studentID: String
+  userInstitutions(where: UserInstitutionWhereInput! = {}, orderBy: [UserInstitutionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserInstitutionWhereUniqueInput): [UserInstitution!]
+  userInstitutionsCount(where: UserInstitutionWhereInput! = {}): Int
 }
 
 type PasswordState {
@@ -28,6 +30,7 @@ input UserWhereInput {
   email: StringFilter
   role: StringFilter
   studentID: StringFilter
+  userInstitutions: UserInstitutionManyRelationFilter
 }
 
 input IDFilter {
@@ -69,6 +72,12 @@ input NestedStringFilter {
   not: NestedStringFilter
 }
 
+input UserInstitutionManyRelationFilter {
+  every: UserInstitutionWhereInput
+  some: UserInstitutionWhereInput
+  none: UserInstitutionWhereInput
+}
+
 input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
@@ -88,6 +97,14 @@ input UserUpdateInput {
   password: String
   role: String
   studentID: String
+  userInstitutions: UserInstitutionRelateToManyForUpdateInput
+}
+
+input UserInstitutionRelateToManyForUpdateInput {
+  disconnect: [UserInstitutionWhereUniqueInput!]
+  set: [UserInstitutionWhereUniqueInput!]
+  create: [UserInstitutionCreateInput!]
+  connect: [UserInstitutionWhereUniqueInput!]
 }
 
 input UserUpdateArgs {
@@ -101,6 +118,12 @@ input UserCreateInput {
   password: String
   role: String
   studentID: String
+  userInstitutions: UserInstitutionRelateToManyForCreateInput
+}
+
+input UserInstitutionRelateToManyForCreateInput {
+  create: [UserInstitutionCreateInput!]
+  connect: [UserInstitutionWhereUniqueInput!]
 }
 
 type Authentication {
@@ -570,6 +593,100 @@ input RefPhotCreateInput {
   user: UserRelateToOneForCreateInput
 }
 
+type Institution {
+  id: ID!
+  name: String
+  size: String
+  userInstitutions(where: UserInstitutionWhereInput! = {}, orderBy: [UserInstitutionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserInstitutionWhereUniqueInput): [UserInstitution!]
+  userInstitutionsCount(where: UserInstitutionWhereInput! = {}): Int
+}
+
+input InstitutionWhereUniqueInput {
+  id: ID
+}
+
+input InstitutionWhereInput {
+  AND: [InstitutionWhereInput!]
+  OR: [InstitutionWhereInput!]
+  NOT: [InstitutionWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  size: StringFilter
+  userInstitutions: UserInstitutionManyRelationFilter
+}
+
+input InstitutionOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  size: OrderDirection
+}
+
+input InstitutionUpdateInput {
+  name: String
+  size: String
+  userInstitutions: UserInstitutionRelateToManyForUpdateInput
+}
+
+input InstitutionUpdateArgs {
+  where: InstitutionWhereUniqueInput!
+  data: InstitutionUpdateInput!
+}
+
+input InstitutionCreateInput {
+  name: String
+  size: String
+  userInstitutions: UserInstitutionRelateToManyForCreateInput
+}
+
+type UserInstitution {
+  id: ID!
+  user: User
+  institution: Institution
+}
+
+input UserInstitutionWhereUniqueInput {
+  id: ID
+}
+
+input UserInstitutionWhereInput {
+  AND: [UserInstitutionWhereInput!]
+  OR: [UserInstitutionWhereInput!]
+  NOT: [UserInstitutionWhereInput!]
+  id: IDFilter
+  user: UserWhereInput
+  institution: InstitutionWhereInput
+}
+
+input UserInstitutionOrderByInput {
+  id: OrderDirection
+}
+
+input UserInstitutionUpdateInput {
+  user: UserRelateToOneForUpdateInput
+  institution: InstitutionRelateToOneForUpdateInput
+}
+
+input InstitutionRelateToOneForUpdateInput {
+  create: InstitutionCreateInput
+  connect: InstitutionWhereUniqueInput
+  disconnect: Boolean
+}
+
+input UserInstitutionUpdateArgs {
+  where: UserInstitutionWhereUniqueInput!
+  data: UserInstitutionUpdateInput!
+}
+
+input UserInstitutionCreateInput {
+  user: UserRelateToOneForCreateInput
+  institution: InstitutionRelateToOneForCreateInput
+}
+
+input InstitutionRelateToOneForCreateInput {
+  create: InstitutionCreateInput
+  connect: InstitutionWhereUniqueInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -624,6 +741,18 @@ type Mutation {
   updateRefPhots(data: [RefPhotUpdateArgs!]!): [RefPhot]
   deleteRefPhot(where: RefPhotWhereUniqueInput!): RefPhot
   deleteRefPhots(where: [RefPhotWhereUniqueInput!]!): [RefPhot]
+  createInstitution(data: InstitutionCreateInput!): Institution
+  createInstitutions(data: [InstitutionCreateInput!]!): [Institution]
+  updateInstitution(where: InstitutionWhereUniqueInput!, data: InstitutionUpdateInput!): Institution
+  updateInstitutions(data: [InstitutionUpdateArgs!]!): [Institution]
+  deleteInstitution(where: InstitutionWhereUniqueInput!): Institution
+  deleteInstitutions(where: [InstitutionWhereUniqueInput!]!): [Institution]
+  createUserInstitution(data: UserInstitutionCreateInput!): UserInstitution
+  createUserInstitutions(data: [UserInstitutionCreateInput!]!): [UserInstitution]
+  updateUserInstitution(where: UserInstitutionWhereUniqueInput!, data: UserInstitutionUpdateInput!): UserInstitution
+  updateUserInstitutions(data: [UserInstitutionUpdateArgs!]!): [UserInstitution]
+  deleteUserInstitution(where: UserInstitutionWhereUniqueInput!): UserInstitution
+  deleteUserInstitutions(where: [UserInstitutionWhereUniqueInput!]!): [UserInstitution]
 }
 
 type Query {
@@ -651,6 +780,12 @@ type Query {
   refPhot(where: RefPhotWhereUniqueInput!): RefPhot
   refPhots(where: RefPhotWhereInput! = {}, orderBy: [RefPhotOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: RefPhotWhereUniqueInput): [RefPhot!]
   refPhotsCount(where: RefPhotWhereInput! = {}): Int
+  institution(where: InstitutionWhereUniqueInput!): Institution
+  institutions(where: InstitutionWhereInput! = {}, orderBy: [InstitutionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: InstitutionWhereUniqueInput): [Institution!]
+  institutionsCount(where: InstitutionWhereInput! = {}): Int
+  userInstitution(where: UserInstitutionWhereUniqueInput!): UserInstitution
+  userInstitutions(where: UserInstitutionWhereInput! = {}, orderBy: [UserInstitutionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserInstitutionWhereUniqueInput): [UserInstitution!]
+  userInstitutionsCount(where: UserInstitutionWhereInput! = {}): Int
   keystone: KeystoneMeta!
 }
 
