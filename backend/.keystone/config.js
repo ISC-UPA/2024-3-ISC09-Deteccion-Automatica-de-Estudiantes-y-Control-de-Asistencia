@@ -31,14 +31,11 @@ var user = {
   access: import_access.allowAll,
   fields: {
     name: (0, import_fields.text)({ validation: { isRequired: true } }),
-    // Nombre del usuario
     email: (0, import_fields.text)({
       validation: { isRequired: true },
       isIndexed: "unique"
-      // Para establecer el campo como único en la base de datos
     }),
     password: (0, import_fields.password)({ validation: { isRequired: true } }),
-    // Contraseña
     role: (0, import_fields.select)({
       options: [
         { label: "Estudiante", value: "student" },
@@ -48,8 +45,9 @@ var user = {
       defaultValue: "student",
       validation: { isRequired: true }
     }),
-    studentID: (0, import_fields.text)()
-    // Solo para estudiantes, se puede dejar vacío
+    studentID: (0, import_fields.text)(),
+    userInstitutions: (0, import_fields.relationship)({ ref: "UserInstitution.user", many: true })
+    // Esta relación debe apuntar correctamente
   }
 };
 
@@ -236,6 +234,39 @@ var refPhoto = {
   }
 };
 
+// Schema/Institution.ts
+var import_access9 = require("@keystone-6/core/access");
+var import_fields9 = require("@keystone-6/core/fields");
+var institution = {
+  access: import_access9.allowAll,
+  fields: {
+    name: (0, import_fields9.text)({ validation: { isRequired: true } }),
+    size: (0, import_fields9.select)({
+      options: [
+        { label: "Peque\xF1a", value: "small" },
+        { label: "Mediana", value: "medium" },
+        { label: "Grande", value: "large" }
+      ],
+      validation: { isRequired: true }
+    }),
+    userInstitutions: (0, import_fields9.relationship)({ ref: "UserInstitution.institution", many: true })
+    // Relación con UserInstitution
+  }
+};
+
+// Schema/UserInstitution.ts
+var import_access10 = require("@keystone-6/core/access");
+var import_fields10 = require("@keystone-6/core/fields");
+var userInstitution = {
+  access: import_access10.allowAll,
+  fields: {
+    user: (0, import_fields10.relationship)({ ref: "User.userInstitutions", many: false }),
+    // Asegúrate de que esta relación apunte correctamente
+    institution: (0, import_fields10.relationship)({ ref: "Institution.userInstitutions", many: false })
+    // Igual aquí
+  }
+};
+
 // Schema/Schema.ts
 var lists = {
   User: user,
@@ -245,7 +276,10 @@ var lists = {
   Class: classSchema,
   Attendance: attendance,
   FaceComparison: faceComparison,
-  RefPhot: refPhoto
+  RefPhot: refPhoto,
+  Institution: institution,
+  UserInstitution: userInstitution
+  // Asegúrate de que esté aquí
 };
 
 // keystone.ts

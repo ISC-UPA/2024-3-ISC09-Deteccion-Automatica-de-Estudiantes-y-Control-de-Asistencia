@@ -7,6 +7,8 @@ import { classSchema } from "./Class";
 import { attendance } from "./Attendance";
 import { faceComparison } from "./FaceComparison";
 import { refPhoto } from './RefPhoto';
+import { institution } from './Institution';
+import { userInstitution } from './UserInstitution'; // No olvides importar UserInstitution
 
 export const lists = {
     User: user,
@@ -17,4 +19,6 @@ export const lists = {
     Attendance: attendance,
     FaceComparison: faceComparison,
     RefPhot: refPhoto,
-} 
+    Institution: institution,
+    UserInstitution: userInstitution, // Asegúrate de que esté aquí
+}; 
