@@ -6,7 +6,9 @@ resources:
 - repo: self
 
 pool:
-  name: 'agentclass'
+  name: 'Default'
+  demands:
+  - agent.name -equals agentclass
 
 variables:
   tag: '$(Build.BuildId)'
@@ -21,40 +23,8 @@ stages:
     - task: Docker@2
       displayName: Build and push Docker image
       inputs:
-        containerRegistry: 'classtrackapi.azurecr.io'
+        containerRegistry: 'classtrackapi'
         command: 'build'
         Dockerfile: '**/backend/Dockerfile'
-        arguments: '-t backend'
-    - task: Docker@2
-      displayName: Tag an image
-      inputs:
-        command: 'tag'
-        containerRegistry: 'classtrackapi.azurecr.io'
-        arguments: 'backend:latest classtrackapi.azurecr.io/backend:latest'
-        addPipelineData: false
-        addBaseImageData: false
-    - task: Docker@2
-      displayName: Push an image
-      inputs:
-        command: 'push'
-        containerRegistry: 'classtrackapi.azurecr.io'
-        repository: 'backend'
-        tags: 'latest'
-- stage: Deploy
-  displayName: Deploy to Azure Web App
-  dependsOn: Build
-  jobs:
-  - job: Deploy
-    displayName: Deploy to Azure Web App
-    steps:
-    - task: AzureWebAppContainer@1
-      inputs:
-        azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
-        appName: 'classtrack-api'
-        deployToSlotOrASE: true
-        resourceGroupName: 'ISC09A'
-        slotName: 'production'
-        containers: 'classtrackapi.azurecr.io/backend:latest'
-        containerCommand: 'docker run --workdir=/app -p 443:3000'
-        acrUsername: 'classtrackapi'
-        acrPassword: 'Tk4AWY1xhd+eSc3fvNUkIZtIpPpZwxrBzJoOurEVyy+ACRA7L0b/'
+        arguments: '-t classtrackapi.azurecr.io/classtrack-api:latest'
+  
