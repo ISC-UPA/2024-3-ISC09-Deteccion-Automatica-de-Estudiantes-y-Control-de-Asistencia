@@ -19,4 +19,4 @@ EXPOSE 3000
 # Comando para compilar y correr la aplicación
 RUN yarn build
 
-CMD ["yarn", "start"]
+CMD ["yarn", "dev"]
