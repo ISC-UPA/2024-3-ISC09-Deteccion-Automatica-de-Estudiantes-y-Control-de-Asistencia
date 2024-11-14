@@ -27,4 +27,9 @@ stages:
         command: 'build'
         Dockerfile: '**/backend/Dockerfile'
         arguments: '-t classtrackapi.azurecr.io/classtrack-api:latest'
-  
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'classtrackapi'
+        repository: 'classtrack-api'
+        command: 'push'
+        tags: 'latest'
