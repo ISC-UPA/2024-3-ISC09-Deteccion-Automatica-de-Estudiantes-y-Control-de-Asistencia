@@ -1,6 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+
+
+type RootStackParamList = {
+  TeacherProfile: undefined;
+  ClassScreen: {
+    subject: string;
+    schedule: string;
+    classroom: string;
+  };
+};
+
+type ClassScreenRouteProp = RouteProp<RootStackParamList, 'ClassScreen'>;
 
 interface AttendanceRecord {
   id: string;
@@ -9,14 +23,9 @@ interface AttendanceRecord {
   isPresent: boolean;
 }
 
-interface AttendanceScreenProps {
-  onBackPress: () => void;
-}
-
 const MAX_ABSENCES = 5;
 
 const AbsenceProgressBar: React.FC<{ absences: number }> = ({ absences }) => {
-
   const progress = (absences / MAX_ABSENCES) * 100;
   
   return (
@@ -35,11 +44,24 @@ const AbsenceProgressBar: React.FC<{ absences: number }> = ({ absences }) => {
   );
 };
 
-const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ onBackPress }) => {
+const AttendanceScreen: React.FC = () => {
+  const route = useRoute<ClassScreenRouteProp>();
+  const navigation = useNavigation();
+
+
+  const defaultParams = {
+    subject: "Sin nombre",
+    schedule: "Horario no disponible",
+    classroom: "Aula no disponible"
+  };
+
+ 
+  const { subject, schedule, classroom } = route.params || defaultParams;
+
   const courseInfo = {
-    name: "Sistemas Embebidos",
-    schedule: "9:00 - 10:50 AM",
-    classroom: "501",
+    name: subject,
+    schedule: schedule,
+    classroom: classroom,
     group: "ISC09A",
     maxAbsences: MAX_ABSENCES,
     totalStudents: 24,
@@ -75,7 +97,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ onBackPress }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Ionicons name="chevron-back" size={24} color="black" />
         </TouchableOpacity>
         <Text style={styles.title}>{courseInfo.name}</Text>
@@ -126,7 +148,6 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ onBackPress }) => {
 };
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     backgroundColor: '#fff',
@@ -219,7 +240,6 @@ const styles = StyleSheet.create({
   absent: {
     backgroundColor: '#F44336',
   },
-  
   progressBarContainer: {
     flexDirection: 'row',
     alignItems: 'center',
