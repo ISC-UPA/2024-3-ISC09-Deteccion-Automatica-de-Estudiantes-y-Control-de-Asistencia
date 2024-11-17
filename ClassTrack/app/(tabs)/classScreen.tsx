@@ -61,7 +61,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ onBackPress }) => {
     {
       id: '3',
       studentName: 'Sara Itzel García Vidal',
-      accumulatedAbsences: 5,
+      accumulatedAbsences: 4,
       isPresent: true,
     },
     {

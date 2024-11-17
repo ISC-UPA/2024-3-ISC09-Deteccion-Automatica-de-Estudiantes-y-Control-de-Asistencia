@@ -50,6 +50,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="StudentProfileScreen"
+        options={{
+          title: 'Student Profile', 
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'school' : 'school-outline'} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
