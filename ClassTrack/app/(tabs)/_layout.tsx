@@ -41,6 +41,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="classScreen"
+        options={{
+          title: 'Class Info',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'reader' : 'reader-outline'} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
