@@ -33,3 +33,9 @@ stages:
         repository: 'classtrack-api'
         command: 'push'
         tags: 'latest'
+    - task: AzureWebAppContainer@1
+      inputs:
+        azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
+        appName: 'ClassTrack-API-Alumnos'
+        containers: 'classtrack-api'
+        appSettings: '-Port 3000'
