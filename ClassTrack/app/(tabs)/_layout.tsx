@@ -32,6 +32,33 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="StudentScreen"
+        options={{
+          title: 'Student',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="classScreen"
+        options={{
+          title: 'Class Info',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'reader' : 'reader-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="TeacherProfileScreen"
+        options={{
+          title: 'Teacher Profile', 
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
