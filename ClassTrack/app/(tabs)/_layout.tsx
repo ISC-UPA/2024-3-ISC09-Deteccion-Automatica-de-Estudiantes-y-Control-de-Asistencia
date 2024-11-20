@@ -76,6 +76,19 @@ export default function TabLayout() {
           ),
         }}
       />;
+      <Tabs.Screen
+        name="TeachersScreen" // Newly added TeachersScreen
+        options={{
+          title: 'Teachers',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'school' : 'school-outline'}
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
