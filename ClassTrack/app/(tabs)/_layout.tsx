@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
+import { Ionicons } from '@expo/vector-icons';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -15,23 +15,31 @@ export default function TabLayout() {
         headerShown: false,
       }}>
       <Tabs.Screen
-        name="index"
+        name="StudentsScreen"
         options={{
-          title: 'Home',
+          title: 'Students',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+            <Ionicons
+              name={focused ? 'people' : 'people-outline'} 
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="TeacherClassesScreen"
         options={{
-          title: 'Explore',
+          title: 'Classes',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+            <Ionicons
+              name={focused ? 'book' : 'book-outline'} 
+              size={24}
+              color={color}
+            />
           ),
         }}
-      />
+      />;
       <Tabs.Screen
         name="StudentScreen"
         options={{
@@ -53,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="TeacherProfileScreen"
         options={{
-          title: 'Teacher Profile', 
+          title: 'Teacher Profile',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
           ),
