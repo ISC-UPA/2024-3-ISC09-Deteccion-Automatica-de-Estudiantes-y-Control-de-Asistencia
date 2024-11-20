@@ -10,6 +10,9 @@ COPY package*.json ./
 # Instala las dependencias
 RUN yarn install
 
+# Define un volumen
+VOLUME ["/db"]
+
 # Copia el resto de la aplicación
 COPY . .
 
