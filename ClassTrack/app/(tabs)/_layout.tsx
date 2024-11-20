@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
+import { Ionicons } from '@expo/vector-icons';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -50,6 +50,32 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="StudentsScreen"
+        options={{
+          title: 'Students',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'people' : 'people-outline'} 
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="TeacherClassesScreen"
+        options={{
+          title: 'Classes',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'book' : 'book-outline'} 
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />;
     </Tabs>
   );
 }
