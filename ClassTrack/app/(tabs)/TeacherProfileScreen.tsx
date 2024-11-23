@@ -88,7 +88,7 @@ export const TeacherProfileScreen: React.FC = () => {
     teacherName: "Juan Carlos Herrera",
     classes: [
       {
-        subject: "Sistemas Embe",
+        subject: "Sistemas Embebidos",
         schedule: "Horario: 9:00 - 10:50 AM",
         classroom: "Aula: 501"
       },
