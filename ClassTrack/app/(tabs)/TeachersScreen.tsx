@@ -28,7 +28,11 @@ const TeacherCard: React.FC<Teacher> = ({ id, name, code, department }) => {
   };
 
   return (
-    <TouchableOpacity style={styles.teacherCard} onPress={handlePress}>
+    <TouchableOpacity
+      style={styles.teacherCard}
+      onPress={handlePress}
+      activeOpacity={0.7} // Feedback visual al presionar
+    >
       <View style={styles.teacherInfo}>
         <Text style={styles.teacherName}>{name}</Text>
         <Text style={styles.teacherDetails}>{code}</Text>
@@ -41,7 +45,7 @@ const TeacherCard: React.FC<Teacher> = ({ id, name, code, department }) => {
 
 const TeachersScreen: React.FC = () => {
   const [sortOption, setSortOption] = useState<'name' | 'department'>('name');
-  const [data, setData] = useState<Teacher[]>([
+  const [data] = useState<Teacher[]>([
     { id: '1', name: 'Rodrigo Sánchez', code: 'UP210612', department: 'ISC09A' },
     { id: '2', name: 'Maria López', code: 'UP210789', department: 'ISC09B' },
     { id: '3', name: 'Juan Pérez', code: 'UP210456', department: 'ISC09C' },
@@ -60,7 +64,7 @@ const TeachersScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Teachers</Text>
+        <Text style={styles.headerTitle}>Teacher List</Text>
         <RNPickerSelect
           onValueChange={(value) => setSortOption(value)}
           items={[
@@ -69,7 +73,7 @@ const TeachersScreen: React.FC = () => {
           ]}
           style={pickerSelectStyles}
           value={sortOption}
-          placeholder={{ label: 'Select filter', value: null }}
+          placeholder={{ label: 'Sort by...', value: null }}
           useNativeAndroidPickerStyle={false}
         />
       </View>
@@ -93,21 +97,21 @@ const TeachersScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f9fa', // Fondo claro para mejor contraste
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#6200EE', // Color consistente para la cabecera
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#ddd',
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#000',
+    fontWeight: '700',
+    color: '#fff',
   },
   teacherCard: {
     flexDirection: 'row',
@@ -115,7 +119,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 16,
-    borderRadius: 10,
+    borderRadius: 8,
     marginHorizontal: 16,
     marginBottom: 16,
     borderWidth: 1,
@@ -124,14 +128,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
   teacherInfo: {
     flex: 1,
   },
   teacherName: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#000',
     marginBottom: 4,
   },
@@ -140,30 +144,28 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   listContainer: {
-    marginTop: 16,
+    paddingBottom: 16,
   },
 });
 
 const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
     fontSize: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    padding: 8,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     color: '#000',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff',
   },
   inputAndroid: {
     fontSize: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    padding: 8,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     color: '#000',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff',
   },
 });
 

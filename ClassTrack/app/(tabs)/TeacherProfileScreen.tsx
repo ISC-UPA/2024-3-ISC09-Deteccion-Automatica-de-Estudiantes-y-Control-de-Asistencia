@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
+import { ScrollView, StyleSheet } from 'react-native';
+import { Avatar, Card, Title, Paragraph, List, IconButton, Divider } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
 
 type RootStackParamList = {
   TeacherProfile: undefined;
@@ -27,80 +26,65 @@ interface TeacherProfileProps {
   classes: Class[];
 }
 
-const ClassCard: React.FC<Class> = ({ subject, schedule, classroom }) => {
+const TeacherProfile: React.FC<TeacherProfileProps> = ({ teacherName, classes }) => {
   const navigation = useNavigation<NavigationProp>();
 
-  const handlePress = () => {
+  const handleClassPress = (classItem: Class) => {
     navigation.navigate('ClassScreen', {
-      subject,
-      schedule,
-      classroom
+      subject: classItem.subject,
+      schedule: classItem.schedule,
+      classroom: classItem.classroom,
     });
   };
 
   return (
-    <TouchableOpacity style={styles.classCard} onPress={handlePress}>
-      <View style={styles.classInfo}>
-        <Text style={styles.classSubject}>{subject}</Text>
-        <Text style={styles.classDetails}>{schedule}</Text>
-        <Text style={styles.classDetails}>{classroom}</Text>
-      </View>
-      <FontAwesome name="chevron-right" size={20} color="#666" />
-    </TouchableOpacity>
-  );
-};
-
-const TeacherProfile: React.FC<TeacherProfileProps> = ({
-  teacherName,
-  classes,
-}) => {
-  return (
     <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Perfil de maestro</Text>
-      </View>
-      
-      <View style={styles.profileCard}>
-        <View style={styles.avatarContainer}>
-          <FontAwesome name="user" size={64} color="#000" />
-        </View>
-        <Text style={styles.teacherName}>{teacherName}</Text>
-        <Text style={styles.sectionTitle}>Clases pertenecientes:</Text>
-      </View>
+      <Card style={styles.profileCard}>
+        <Card.Content>
+          <Avatar.Text size={80} label={teacherName[0]} style={styles.avatar} />
+          <Title style={styles.teacherName}>{teacherName}</Title>
+          <Paragraph style={styles.sectionTitle}>Classes</Paragraph>
+        </Card.Content>
+      </Card>
 
-      <View style={styles.classesSection}>
-        {classes.map((classItem, index) => (
-          <ClassCard
-            key={index}
-            subject={classItem.subject}
-            schedule={classItem.schedule}
-            classroom={classItem.classroom}
-          />
-        ))}
-      </View>
+      {classes.map((classItem, index) => (
+        <Card
+          key={index}
+          style={styles.classCard}
+          onPress={() => handleClassPress(classItem)}
+        >
+          <Card.Content>
+            <Title>{classItem.subject}</Title>
+            <Paragraph>{classItem.schedule}</Paragraph>
+            <Paragraph>{classItem.classroom}</Paragraph>
+          </Card.Content>
+          <Card.Actions>
+            <IconButton icon="chevron-right" size={24} onPress={() => handleClassPress(classItem)} />
+          </Card.Actions>
+        </Card>
+      ))}
     </ScrollView>
   );
 };
-
 
 export const TeacherProfileScreen: React.FC = () => {
   const sampleData = {
     teacherName: "Juan Carlos Herrera",
     classes: [
       {
-        subject: "Sistemas Embebidos",
-        schedule: "Horario: 9:00 - 10:50 AM",
-        classroom: "Aula: 501"
+        subject: "Inteligencia de Negocios",
+        schedule: "9:00 - 10:50 AM",
+        classroom: "Room 508",
       },
       {
-        subject: "Sistemas Embe",
-        schedule: "Horario: 9:00 - 10:50 AM",
-        classroom: "Aula: 501"
+        subject: "Inteligencia de Negocios",
+        schedule: "11:00 - 12:50 PM",
+        classroom: "Room 508",
       },
       {
-        subject: "Sistemas Embe",
-        schedule: "Horario: 9:00 - 10:50 AM",
-        classroom: "Aula: 501"
+        subject: "Inteligencia de Negocios",
+        schedule: "1:00 - 2:50 PM",
+        classroom: "Room 508",
       },
     ],
   };
@@ -111,74 +95,37 @@ export const TeacherProfileScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  header: {
+    backgroundColor: '#f5f5f5',
     padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#000',
   },
   profileCard: {
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#E6F0FF',
-    margin: 16,
-    borderRadius: 20,
+    marginBottom: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    elevation: 4,
+    padding: 16,
   },
-  avatarContainer: {
-    width: 120,
-    height: 120,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#000',
-    marginBottom: 12,
+  avatar: {
+    alignSelf: 'center',
+    marginBottom: 16,
+    backgroundColor: '#6200ee',
   },
   teacherName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: 16,
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
   },
   sectionTitle: {
-    fontSize: 14,
-    color: '#666',
-    alignSelf: 'flex-start',
-  },
-  classesSection: {
-    padding: 16,
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#6b6b6b',
   },
   classCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 10,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  classInfo: {
-    flex: 1,
-  },
-  classSubject: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#000',
-    marginBottom: 4,
-  },
-  classDetails: {
-    fontSize: 14,
-    color: '#666',
+    marginBottom: 16,
+    borderRadius: 12,
+    backgroundColor: '#ffffff',
+    elevation: 2,
   },
 });
 

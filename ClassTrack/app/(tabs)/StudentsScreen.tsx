@@ -28,11 +28,15 @@ const StudentCard: React.FC<Student> = ({ id, name, code, classroom }) => {
   };
 
   return (
-    <TouchableOpacity style={styles.studentCard} onPress={handlePress}>
+    <TouchableOpacity
+      style={styles.studentCard}
+      onPress={handlePress}
+      activeOpacity={0.7} // Añade retroalimentación visual
+    >
       <View style={styles.studentInfo}>
         <Text style={styles.studentName}>{name}</Text>
-        <Text style={styles.studentDetails}>{code}</Text>
-        <Text style={styles.studentDetails}>{classroom}</Text>
+        <Text style={styles.studentDetails}>ID: {code}</Text>
+        <Text style={styles.studentDetails}>Classroom: {classroom}</Text>
       </View>
       <FontAwesome name="chevron-right" size={20} color="#666" />
     </TouchableOpacity>
@@ -41,7 +45,7 @@ const StudentCard: React.FC<Student> = ({ id, name, code, classroom }) => {
 
 const StudentsScreen: React.FC = () => {
   const [sortOption, setSortOption] = useState<'name' | 'code'>('name');
-  const [data, setData] = useState<Student[]>([
+  const [data] = useState<Student[]>([
     { id: '1', name: 'Sara Itzel García Vidal', code: 'UP21612', classroom: 'ISC09A' },
     { id: '2', name: 'Juan Pérez López', code: 'UP21589', classroom: 'ISC09A' },
     { id: '3', name: 'Ana María Fernández', code: 'UP21478', classroom: 'ISC09A' },
@@ -60,16 +64,16 @@ const StudentsScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Students</Text>
+        <Text style={styles.headerTitle}>Student List</Text>
         <RNPickerSelect
           onValueChange={(value) => setSortOption(value)}
           items={[
             { label: 'Name', value: 'name' },
-            { label: 'ID', value: 'code' }, 
+            { label: 'ID', value: 'code' },
           ]}
           style={pickerSelectStyles}
           value={sortOption}
-          placeholder={{ label: 'Select filter', value: null }}
+          placeholder={{ label: 'Sort by...', value: null }}
           useNativeAndroidPickerStyle={false}
         />
       </View>
@@ -93,21 +97,21 @@ const StudentsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f9fa', // Fondo claro para mejor lectura
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#6200EE',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: '#ddd',
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#000',
+    fontWeight: '700',
+    color: '#fff',
   },
   studentCard: {
     flexDirection: 'row',
@@ -115,7 +119,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 16,
-    borderRadius: 10,
+    borderRadius: 8,
     marginHorizontal: 16,
     marginBottom: 16,
     borderWidth: 1,
@@ -124,14 +128,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 2,
   },
   studentInfo: {
     flex: 1,
   },
   studentName: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#000',
     marginBottom: 4,
   },
@@ -140,30 +144,28 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   listContainer: {
-    marginTop: 16, 
+    paddingBottom: 16,
   },
 });
 
 const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
     fontSize: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    padding: 8,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     color: '#000',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff',
   },
   inputAndroid: {
     fontSize: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    padding: 8,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     color: '#000',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff',
   },
 });
 
