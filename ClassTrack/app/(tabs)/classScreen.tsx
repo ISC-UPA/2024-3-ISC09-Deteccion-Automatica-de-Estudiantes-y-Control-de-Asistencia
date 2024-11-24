@@ -1,7 +1,8 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Appbar, Card, Text, ProgressBar, Avatar, List, IconButton } from 'react-native-paper';
+import { Appbar, Card, Text, ProgressBar, Avatar, IconButton, Button } from 'react-native-paper';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   TeacherProfile: undefined;
@@ -71,12 +72,24 @@ const AttendanceScreen: React.FC = () => {
     },
   ];
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('userName');
+      await AsyncStorage.removeItem('userEmail');
+      navigation.navigate('index'); // Navegar a la pantalla de inicio o login
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Appbar */}
       <Appbar.Header>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
         <Appbar.Content title={courseInfo.name} />
+        <Appbar.Action icon="logout" onPress={handleLogout} />
       </Appbar.Header>
 
       {/* Course Information */}
@@ -186,6 +199,10 @@ const styles = StyleSheet.create({
   },
   absentAvatar: {
     backgroundColor: '#F44336',
+  },
+  logoutButton: {
+    margin: 16,
+    borderRadius: 8,
   },
 });
 

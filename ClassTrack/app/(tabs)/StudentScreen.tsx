@@ -1,8 +1,12 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Image, View } from 'react-native';
 import { Card, Title, Paragraph, ProgressBar, Text, Button, Appbar } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 const StudentScreen = () => {
+  const navigation = useNavigation();
+
   const absenceData = [
     { subject: 'Sistemas Embebidos', absences: 4, maxAbsences: 10 },
     { subject: 'Programación Web', absences: 10, maxAbsences: 10 },
@@ -32,11 +36,23 @@ const StudentScreen = () => {
     );
   };
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('userName');
+      await AsyncStorage.removeItem('userEmail');
+      navigation.navigate('index'); // Navegar a la pantalla de inicio o login
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Appbar.Header>
         <Appbar.BackAction onPress={() => console.log('Go back')} />
         <Appbar.Content title="Perfil del Estudiante" />
+        <Appbar.Action icon="logout" onPress={handleLogout} />
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Card style={styles.profileCard}>
@@ -126,6 +142,11 @@ const styles = StyleSheet.create({
   backButton: {
     margin: 16,
     borderRadius: 8,
+  },
+  logoutButton: {
+    margin: 16,
+    borderRadius: 8,
+    backgroundColor: '#F44336',
   },
 });
 
