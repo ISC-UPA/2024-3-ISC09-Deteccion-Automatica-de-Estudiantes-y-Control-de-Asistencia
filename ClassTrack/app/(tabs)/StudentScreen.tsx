@@ -3,6 +3,7 @@ import { ScrollView, View, StyleSheet } from 'react-native';
 import { ProfileCard } from '@/components/ProfileCard';
 import { AbsenceBar } from '@/components/AbsenceBar';
 import { BackButton } from '@/components/BackButton';
+import { ThemedView } from '../../components/ThemedView';
 
 const StudentScreen = () => {
   return (
