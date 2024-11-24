@@ -1,8 +1,9 @@
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import { Avatar, Card, Title, Paragraph, List, IconButton, Divider } from 'react-native-paper';
+import { Appbar, Avatar, Card, Title, Paragraph, List, IconButton, Divider } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   TeacherProfile: undefined;
@@ -37,9 +38,21 @@ const TeacherProfile: React.FC<TeacherProfileProps> = ({ teacherName, classes })
     });
   };
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('userName');
+      await AsyncStorage.removeItem('userEmail');
+      navigation.navigate('index'); // Navegar a la pantalla de inicio o login
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
   return (
     <ScrollView style={styles.container}>
       <Card style={styles.profileCard}>
+      <Appbar.Action icon="logout" onPress={handleLogout} />
         <Card.Content>
           <Avatar.Text size={80} label={teacherName[0]} style={styles.avatar} />
           <Title style={styles.teacherName}>{teacherName}</Title>
