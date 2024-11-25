@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
+import axios from 'axios'; // Importar axios
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -16,11 +17,11 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'StudentProf
 interface Student {
   id: string;
   name: string;
-  code: string;
-  classroom: string;
+  studentID: string;
+  email: string;
 }
 
-const StudentCard: React.FC<Student> = ({ id, name, code, classroom }) => {
+const StudentCard: React.FC<Student> = ({ id, name, studentID, email }) => {
   const navigation = useNavigation<NavigationProp>();
 
   const handlePress = () => {
@@ -31,12 +32,12 @@ const StudentCard: React.FC<Student> = ({ id, name, code, classroom }) => {
     <TouchableOpacity
       style={styles.studentCard}
       onPress={handlePress}
-      activeOpacity={0.7} // Añade retroalimentación visual
+      activeOpacity={0.7} // Añadir retroalimentación visual
     >
       <View style={styles.studentInfo}>
         <Text style={styles.studentName}>{name}</Text>
-        <Text style={styles.studentDetails}>ID: {code}</Text>
-        <Text style={styles.studentDetails}>Classroom: {classroom}</Text>
+        <Text style={styles.studentDetails}>ID: {studentID}</Text>
+        <Text style={styles.studentDetails}>Email: {email}</Text>
       </View>
       <FontAwesome name="chevron-right" size={20} color="#666" />
     </TouchableOpacity>
@@ -44,22 +45,62 @@ const StudentCard: React.FC<Student> = ({ id, name, code, classroom }) => {
 };
 
 const StudentsScreen: React.FC = () => {
-  const [sortOption, setSortOption] = useState<'name' | 'code'>('name');
-  const [data] = useState<Student[]>([
-    { id: '1', name: 'Sara Itzel García Vidal', code: 'UP21612', classroom: 'ISC09A' },
-    { id: '2', name: 'Juan Pérez López', code: 'UP21589', classroom: 'ISC09A' },
-    { id: '3', name: 'Ana María Fernández', code: 'UP21478', classroom: 'ISC09A' },
-    { id: '4', name: 'Luis Hernández Gómez', code: 'UP21345', classroom: 'ISC09A' },
-  ]);
+  const [sortOption, setSortOption] = useState<'name' | 'studentID'>('name');
+  const [students, setStudents] = useState<Student[]>([]); // Almacenar los estudiantes
+  const [loading, setLoading] = useState<boolean>(true); // Estado de carga
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      try {
+        // Realizar la solicitud GraphQL
+        const response = await axios.post(
+          'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+          {
+            query: `
+              query Query($where: UserWhereInput!) {
+                users(where: $where) {
+                  name
+                  studentID
+                  email
+                }
+              }
+            `,
+            variables: {
+              where: {
+                role: {
+                  equals: 'student',
+                },
+              },
+            },
+          }
+        );
+        setStudents(response.data.data.users); // Guardar los estudiantes en el estado
+      } catch (error) {
+        console.error('Error fetching students:', error);
+      } finally {
+        setLoading(false); // Terminar la carga
+      }
+    };
+
+    fetchStudents(); // Llamada a la API
+  }, []);
 
   const sortData = () => {
     if (sortOption === 'name') {
-      return [...data].sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortOption === 'code') {
-      return [...data].sort((a, b) => a.code.localeCompare(b.code));
+      return [...students].sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortOption === 'studentID') {
+      return [...students].sort((a, b) => a.studentID.localeCompare(b.studentID));
     }
-    return data;
+    return students;
   };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -69,7 +110,7 @@ const StudentsScreen: React.FC = () => {
           onValueChange={(value) => setSortOption(value)}
           items={[
             { label: 'Name', value: 'name' },
-            { label: 'ID', value: 'code' },
+            { label: 'ID', value: 'studentID' },
           ]}
           style={pickerSelectStyles}
           value={sortOption}
@@ -80,13 +121,13 @@ const StudentsScreen: React.FC = () => {
       <FlatList
         contentContainerStyle={styles.listContainer}
         data={sortData()}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.studentID} // Cambiar ID por studentID
         renderItem={({ item }) => (
           <StudentCard
-            id={item.id}
+            id={item.studentID} // Usar studentID como id
             name={item.name}
-            code={item.code}
-            classroom={item.classroom}
+            studentID={item.studentID}
+            email={item.email}
           />
         )}
       />
