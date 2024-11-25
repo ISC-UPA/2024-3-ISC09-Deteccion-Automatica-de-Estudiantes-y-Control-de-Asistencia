@@ -4,7 +4,10 @@ import { FontAwesome } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ApolloProvider, gql, useQuery } from '@apollo/client';
+import client from '@/api/apolloClient'; // Configuración del cliente Apollo
 
+// Definición de tipos para navegación y datos de profesor
 type RootStackParamList = {
   TeacherProfile: {
     teacherId: string;
@@ -14,49 +17,63 @@ type RootStackParamList = {
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TeacherProfile'>;
 
 interface Teacher {
-  id: string;
+  studentID: string;
   name: string;
-  code: string;
-  department: string;
+  email: string;
 }
 
-const TeacherCard: React.FC<Teacher> = ({ id, name, code, department }) => {
+// Query GraphQL para obtener la lista de profesores
+const GET_TEACHERS = gql`
+  query GetTeachers($where: UserWhereInput!) {
+    users(where: $where) {
+      studentID
+      name
+      email
+    }
+  }
+`;
+
+// Componente para renderizar tarjetas de profesores
+const TeacherCard: React.FC<Teacher> = ({ studentID, name, email }) => {
   const navigation = useNavigation<NavigationProp>();
 
   const handlePress = () => {
-    navigation.navigate('TeacherProfile', { teacherId: id });
+    navigation.navigate('TeacherProfile', { teacherId: studentID });
   };
 
   return (
-    <TouchableOpacity
-      style={styles.teacherCard}
-      onPress={handlePress}
-      activeOpacity={0.7} // Feedback visual al presionar
-    >
+    <TouchableOpacity style={styles.teacherCard} onPress={handlePress} activeOpacity={0.7}>
       <View style={styles.teacherInfo}>
         <Text style={styles.teacherName}>{name}</Text>
-        <Text style={styles.teacherDetails}>{code}</Text>
-        <Text style={styles.teacherDetails}>{department}</Text>
+        <Text style={styles.teacherDetails}>{studentID}</Text>
+        <Text style={styles.teacherDetails}>{email}</Text>
       </View>
       <FontAwesome name="chevron-right" size={20} color="#666" />
     </TouchableOpacity>
   );
 };
 
-const TeachersScreen: React.FC = () => {
+// Contenido principal de la pantalla
+const TeachersScreenContent: React.FC = () => {
   const [sortOption, setSortOption] = useState<'name' | 'department'>('name');
-  const [data] = useState<Teacher[]>([
-    { id: '1', name: 'Rodrigo Sánchez', code: 'UP210612', department: 'ISC09A' },
-    { id: '2', name: 'Maria López', code: 'UP210789', department: 'ISC09B' },
-    { id: '3', name: 'Juan Pérez', code: 'UP210456', department: 'ISC09C' },
-    { id: '4', name: 'Laura Gómez', code: 'UP210123', department: 'ISC09A' },
-  ]);
 
-  const sortData = () => {
+  const { loading, error, data } = useQuery(GET_TEACHERS, {
+    variables: {
+      where: {
+        role: {
+          equals: "teacher",
+        },
+      },
+    },
+  });
+
+  if (loading) return <Text>Loading...</Text>;
+  if (error) return <Text>Error: {error.message}</Text>;
+
+  // Función para ordenar los datos
+  const sortData = (data: Teacher[]) => {
     if (sortOption === 'name') {
       return [...data].sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortOption === 'department') {
-      return [...data].sort((a, b) => a.department.localeCompare(b.department));
     }
     return data;
   };
@@ -69,7 +86,6 @@ const TeachersScreen: React.FC = () => {
           onValueChange={(value) => setSortOption(value)}
           items={[
             { label: 'Name', value: 'name' },
-            { label: 'Department', value: 'department' },
           ]}
           style={pickerSelectStyles}
           value={sortOption}
@@ -79,14 +95,13 @@ const TeachersScreen: React.FC = () => {
       </View>
       <FlatList
         contentContainerStyle={styles.listContainer}
-        data={sortData()}
-        keyExtractor={(item) => item.id}
+        data={sortData(data?.users || [])}
+        keyExtractor={(item) => item.studentID}
         renderItem={({ item }) => (
           <TeacherCard
-            id={item.id}
+            studentID={item.studentID}
             name={item.name}
-            code={item.code}
-            department={item.department}
+            email={item.email}
           />
         )}
       />
@@ -94,17 +109,25 @@ const TeachersScreen: React.FC = () => {
   );
 };
 
+// Proveedor de Apollo para gestionar el contexto de GraphQL
+const TeachersScreen: React.FC = () => (
+  <ApolloProvider client={client}>
+    <TeachersScreenContent />
+  </ApolloProvider>
+);
+
+// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa', // Fondo claro para mejor contraste
+    backgroundColor: '#f8f9fa',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#6200EE', // Color consistente para la cabecera
+    backgroundColor: '#6200EE',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
