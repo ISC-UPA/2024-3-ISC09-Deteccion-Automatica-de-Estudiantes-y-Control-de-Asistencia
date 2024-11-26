@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Button, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
+import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ApolloProvider, gql, useQuery } from '@apollo/client';
-import client from '@/api/apolloClient'; // Configuración del cliente Apollo
 
-// Definición de tipos para navegación y datos de profesor
 type RootStackParamList = {
   TeacherProfile: {
     teacherId: string;
@@ -17,66 +15,120 @@ type RootStackParamList = {
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TeacherProfile'>;
 
 interface Teacher {
-  studentID: string;
+  id: string;
   name: string;
+  studentID: string;
   email: string;
 }
 
-// Query GraphQL para obtener la lista de profesores
-const GET_TEACHERS = gql`
-  query GetTeachers($where: UserWhereInput!) {
-    users(where: $where) {
-      studentID
-      name
-      email
-    }
-  }
-`;
-
-// Componente para renderizar tarjetas de profesores
-const TeacherCard: React.FC<Teacher> = ({ studentID, name, email }) => {
+const TeacherCard: React.FC<Teacher> = ({ id, name, studentID, email }) => {
   const navigation = useNavigation<NavigationProp>();
 
   const handlePress = () => {
-    navigation.navigate('TeacherProfile', { teacherId: studentID });
+    navigation.navigate('TeacherProfile', { teacherId: id });
   };
 
   return (
     <TouchableOpacity style={styles.teacherCard} onPress={handlePress} activeOpacity={0.7}>
       <View style={styles.teacherInfo}>
         <Text style={styles.teacherName}>{name}</Text>
-        <Text style={styles.teacherDetails}>{studentID}</Text>
-        <Text style={styles.teacherDetails}>{email}</Text>
+        <Text style={styles.teacherDetails}>ID: {studentID}</Text>
+        <Text style={styles.teacherDetails}>Email: {email}</Text>
       </View>
       <FontAwesome name="chevron-right" size={20} color="#666" />
     </TouchableOpacity>
   );
 };
 
-// Contenido principal de la pantalla
-const TeachersScreenContent: React.FC = () => {
-  const [sortOption, setSortOption] = useState<'name' | 'department'>('name');
-
-  const { loading, error, data } = useQuery(GET_TEACHERS, {
-    variables: {
-      where: {
-        role: {
-          equals: "teacher",
-        },
-      },
-    },
+const TeachersScreen: React.FC = () => {
+  const [sortOption, setSortOption] = useState<'name' | 'studentID'>('name');
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [newTeacher, setNewTeacher] = useState({
+    name: '',
+    studentID: '',
+    email: '',
+    password: '',
   });
 
-  if (loading) return <Text>Loading...</Text>;
-  if (error) return <Text>Error: {error.message}</Text>;
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await axios.post('https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql', {
+          query: `
+            query Query($where: UserWhereInput!) {
+              users(where: $where) {
+                id
+                name
+                studentID
+                email
+              }
+            }
+          `,
+          variables: { where: { role: { equals: 'teacher' } } },
+        });
+        setTeachers(response.data.data.users);
+      } catch (error) {
+        console.error('Error fetching teachers:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Función para ordenar los datos
-  const sortData = (data: Teacher[]) => {
-    if (sortOption === 'name') {
-      return [...data].sort((a, b) => a.name.localeCompare(b.name));
+    fetchTeachers();
+  }, []);
+
+  const handleCreateTeacher = async () => {
+    try {
+      const response = await axios.post('https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql', {
+        query: `
+          mutation Mutation($data: UserCreateInput!) {
+            createUser(data: $data) {
+              id
+              name
+              email
+              studentID
+            }
+          }
+        `,
+        variables: {
+          data: {
+            name: newTeacher.name,
+            studentID: newTeacher.studentID,
+            email: newTeacher.email,
+            password: newTeacher.password,
+            role: 'teacher',
+          },
+        },
+      });
+
+      const createdTeacher = response.data.data.createUser;
+      setTeachers([...teachers, createdTeacher]);
+      Alert.alert('Success', 'Teacher created successfully!');
+      setModalVisible(false);
+    } catch (error) {
+      console.error('Error creating teacher:', error);
+      Alert.alert('Error', 'Failed to create teacher. Please try again.');
     }
-    return data;
   };
+
+  const sortData = () => {
+    if (sortOption === 'name') {
+      return [...teachers].sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortOption === 'studentID') {
+      return [...teachers].sort((a, b) => a.studentID.localeCompare(b.studentID));
+    }
+    return teachers;
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -86,6 +138,7 @@ const TeachersScreenContent: React.FC = () => {
           onValueChange={(value) => setSortOption(value)}
           items={[
             { label: 'Name', value: 'name' },
+            { label: 'ID', value: 'studentID' },
           ]}
           style={pickerSelectStyles}
           value={sortOption}
@@ -95,28 +148,51 @@ const TeachersScreenContent: React.FC = () => {
       </View>
       <FlatList
         contentContainerStyle={styles.listContainer}
-        data={sortData(data?.users || [])}
+        data={sortData()}
         keyExtractor={(item) => item.studentID}
         renderItem={({ item }) => (
-          <TeacherCard
-            studentID={item.studentID}
-            name={item.name}
-            email={item.email}
-          />
+          <TeacherCard id={item.studentID} name={item.name} studentID={item.studentID} email={item.email} />
         )}
       />
+      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+        <Text style={styles.addButtonText}>+ Add Teacher</Text>
+      </TouchableOpacity>
+
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            value={newTeacher.name}
+            onChangeText={(text) => setNewTeacher({ ...newTeacher, name: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Student ID"
+            value={newTeacher.studentID}
+            onChangeText={(text) => setNewTeacher({ ...newTeacher, studentID: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={newTeacher.email}
+            onChangeText={(text) => setNewTeacher({ ...newTeacher, email: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            secureTextEntry
+            value={newTeacher.password}
+            onChangeText={(text) => setNewTeacher({ ...newTeacher, password: text })}
+          />
+          <Button title="Create" onPress={handleCreateTeacher} />
+          <Button title="Cancel" color="red" onPress={() => setModalVisible(false)} />
+        </View>
+      </Modal>
     </View>
   );
 };
 
-// Proveedor de Apollo para gestionar el contexto de GraphQL
-const TeachersScreen: React.FC = () => (
-  <ApolloProvider client={client}>
-    <TeachersScreenContent />
-  </ApolloProvider>
-);
-
-// Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -169,26 +245,54 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: 16,
   },
+  addButton: {
+    backgroundColor: '#6200EE',
+    padding: 16,
+    margin: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  input: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
 });
 
 const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
     fontSize: 16,
-    padding: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     color: '#000',
     backgroundColor: '#fff',
+    marginHorizontal: 16,
   },
   inputAndroid: {
     fontSize: 16,
-    padding: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     color: '#000',
     backgroundColor: '#fff',
+    marginHorizontal: 16,
   },
 });
 
