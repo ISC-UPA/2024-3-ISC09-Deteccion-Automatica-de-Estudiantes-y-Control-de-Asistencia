@@ -103,10 +103,11 @@ export default function OfficeSignIn(props: any): JSX.Element {
           {
             query: `
               query Query($where: UserWhereUniqueInput!) {
-                user(where: $where) {
-                  role
-                }
+              user(where: $where) {
+                role
+                id
               }
+            }
             `,
             variables: {
               where: {
@@ -122,8 +123,10 @@ export default function OfficeSignIn(props: any): JSX.Element {
         );
 
         const role = response.data?.data?.user?.role;
+        const id = response.data?.data?.user?.id;
         if (role) {
           console.log('Rol del usuario:', role);
+          console.log('Id del usuario:', id);
         } else {
           console.error('No se encontró el rol en la respuesta.');
         }

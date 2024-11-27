@@ -7,7 +7,9 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
-  StudentProfile: { studentId: string };
+  StudentProfile: {
+    studentId: string;
+  };
 };
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'StudentProfile'>;
@@ -42,6 +44,13 @@ const StudentsScreen: React.FC = () => {
   const [sortOption, setSortOption] = useState<'name' | 'studentID'>('name');
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [newStudent, setNewStudent] = useState({
+    name: '',
+    studentID: '',
+    email: '',
+    password: '',
+  });
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -52,7 +61,6 @@ const StudentsScreen: React.FC = () => {
             query: `
               query Query($where: UserWhereInput!) {
                 users(where: $where) {
-                  id
                   name
                   studentID
                   email
@@ -61,7 +69,9 @@ const StudentsScreen: React.FC = () => {
             `,
             variables: {
               where: {
-                role: { equals: 'student' },
+                role: {
+                  equals: 'student',
+                },
               },
             },
           }
@@ -76,6 +86,43 @@ const StudentsScreen: React.FC = () => {
 
     fetchStudents();
   }, []);
+
+  const handleCreateStudent = async () => {
+    try {
+      const response = await axios.post(
+        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+        {
+          query: `
+            mutation Mutation($data: UserCreateInput!) {
+              createUser(data: $data) {
+                id
+                name
+                email
+                studentID
+              }
+            }
+          `,
+          variables: {
+            data: {
+              name: newStudent.name,
+              studentID: newStudent.studentID,
+              email: newStudent.email,
+              password: newStudent.password,
+              role: 'student',
+            },
+          },
+        }
+      );
+
+      const createdStudent = response.data.data.createUser;
+      setStudents([...students, createdStudent]);
+      Alert.alert('Success', 'Student created successfully!');
+      setModalVisible(false);
+    } catch (error) {
+      console.error('Error creating student:', error);
+      Alert.alert('Error', 'Failed to create student. Please try again.');
+    }
+  };
 
   const sortData = () => {
     if (sortOption === 'name') {
@@ -116,17 +163,51 @@ const StudentsScreen: React.FC = () => {
         keyExtractor={(item) => item.studentID}
         renderItem={({ item }) => (
           <StudentCard
-            id={item.id}
+            id={item.studentID}
             name={item.name}
             studentID={item.studentID}
             email={item.email}
           />
         )}
       />
+      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+        <Text style={styles.addButtonText}>+ Add Student</Text>
+      </TouchableOpacity>
+
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            value={newStudent.name}
+            onChangeText={(text) => setNewStudent({ ...newStudent, name: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Student ID"
+            value={newStudent.studentID}
+            onChangeText={(text) => setNewStudent({ ...newStudent, studentID: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={newStudent.email}
+            onChangeText={(text) => setNewStudent({ ...newStudent, email: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            secureTextEntry
+            value={newStudent.password}
+            onChangeText={(text) => setNewStudent({ ...newStudent, password: text })}
+          />
+          <Button title="Create" onPress={handleCreateStudent} />
+          <Button title="Cancel" color="red" onPress={() => setModalVisible(false)} />
+        </View>
+      </Modal>
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
