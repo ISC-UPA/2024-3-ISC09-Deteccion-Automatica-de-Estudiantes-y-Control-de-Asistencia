@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Button, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
-import axios from 'axios'; 
+import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -42,6 +42,13 @@ const StudentsScreen: React.FC = () => {
   const [sortOption, setSortOption] = useState<'name' | 'studentID'>('name');
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [newStudent, setNewStudent] = useState({
+    name: '',
+    studentID: '',
+    email: '',
+    password: '',
+  });
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -76,6 +83,43 @@ const StudentsScreen: React.FC = () => {
 
     fetchStudents();
   }, []);
+
+  const handleCreateStudent = async () => {
+    try {
+      const response = await axios.post(
+        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+        {
+          query: `
+            mutation Mutation($data: UserCreateInput!) {
+              createUser(data: $data) {
+                id
+                name
+                email
+                studentID
+              }
+            }
+          `,
+          variables: {
+            data: {
+              name: newStudent.name,
+              studentID: newStudent.studentID,
+              email: newStudent.email,
+              password: newStudent.password,
+              role: 'student',
+            },
+          },
+        }
+      );
+
+      const createdStudent = response.data.data.createUser;
+      setStudents([...students, createdStudent]);
+      Alert.alert('Success', 'Student created successfully!');
+      setModalVisible(false);
+    } catch (error) {
+      console.error('Error creating student:', error);
+      Alert.alert('Error', 'Failed to create student. Please try again.');
+    }
+  };
 
   const sortData = () => {
     if (sortOption === 'name') {
@@ -113,7 +157,7 @@ const StudentsScreen: React.FC = () => {
       <FlatList
         contentContainerStyle={styles.listContainer}
         data={sortData()}
-        keyExtractor={(item) => item.studentID}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <StudentCard
             id={item.id}
@@ -123,6 +167,41 @@ const StudentsScreen: React.FC = () => {
           />
         )}
       />
+      <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
+        <Text style={styles.addButtonText}>+ Add Student</Text>
+      </TouchableOpacity>
+
+      <Modal visible={modalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            value={newStudent.name}
+            onChangeText={(text) => setNewStudent({ ...newStudent, name: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Student ID"
+            value={newStudent.studentID}
+            onChangeText={(text) => setNewStudent({ ...newStudent, studentID: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={newStudent.email}
+            onChangeText={(text) => setNewStudent({ ...newStudent, email: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            secureTextEntry
+            value={newStudent.password}
+            onChangeText={(text) => setNewStudent({ ...newStudent, password: text })}
+          />
+          <Button title="Create" onPress={handleCreateStudent} />
+          <Button title="Cancel" color="red" onPress={() => setModalVisible(false)} />
+        </View>
+      </Modal>
     </View>
   );
 };
