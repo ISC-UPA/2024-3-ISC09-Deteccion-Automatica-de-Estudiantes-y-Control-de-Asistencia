@@ -13,10 +13,12 @@ import {
 import { FontAwesome } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
 import { gql, useMutation, useQuery } from '@apollo/client';
+import { useRouter } from 'expo-router';
 
 const GET_CLASSES = gql`
   query GetClasses {
     classes {
+      id
       name
       schedule
       description
@@ -29,7 +31,6 @@ const GET_TEACHERS = gql`
     users(where: $where) {
       id
       name
-      email
     }
   }
 `;
@@ -47,18 +48,22 @@ const CREATE_CLASS = gql`
   }
 `;
 
-const ClassCard: React.FC<any> = ({ subject, schedule, description }) => (
-  <TouchableOpacity style={styles.classCard}>
+const ClassCard: React.FC<{ classData: any; onPress: (classData: any) => void }> = ({
+  classData,
+  onPress,
+}) => (
+  <TouchableOpacity style={styles.classCard} onPress={() => onPress(classData)}>
     <View style={styles.classInfo}>
-      <Text style={styles.classSubject}>{subject}</Text>
-      <Text style={styles.classDetails}>{schedule}</Text>
-      <Text style={styles.classDetails}>{description}</Text>
+      <Text style={styles.classSubject}>{classData.name}</Text>
+      <Text style={styles.classDetails}>{classData.schedule}</Text>
+      <Text style={styles.classDetails}>{classData.description}</Text>
     </View>
     <FontAwesome name="chevron-right" size={20} color="#666" />
   </TouchableOpacity>
 );
 
 const ClassesScreen: React.FC = () => {
+  const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
   const [className, setClassName] = useState('');
   const [classDescription, setClassDescription] = useState('');
@@ -69,6 +74,7 @@ const ClassesScreen: React.FC = () => {
   const { loading: loadingTeachers, data: dataTeachers } = useQuery(GET_TEACHERS, {
     variables: { where: { role: { equals: 'teacher' } } },
   });
+
   const [createClass] = useMutation(CREATE_CLASS, {
     refetchQueries: [GET_CLASSES],
     onCompleted: () => setModalVisible(false),
@@ -89,6 +95,17 @@ const ClassesScreen: React.FC = () => {
       </View>
     );
   }
+
+  const handleClassPress = (classData: any) => {
+    router.push({
+      pathname: '/(tabs)/classScreen',
+      params: {
+        subject: classData.name,
+        schedule: classData.schedule,
+        classroom: classData.description,
+      },
+    });
+  };
 
   const handleCreateClass = () => {
     if (!className || !classSchedule || !selectedTeacher) return;
@@ -116,10 +133,8 @@ const ClassesScreen: React.FC = () => {
       <FlatList
         contentContainerStyle={styles.listContainer}
         data={dataClasses.classes}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <ClassCard subject={item.name} schedule={item.schedule} description={item.description} />
-        )}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <ClassCard classData={item} onPress={handleClassPress} />}
       />
 
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
