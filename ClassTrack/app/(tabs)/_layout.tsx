@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-
+import { Ionicons } from '@expo/vector-icons';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -16,19 +16,10 @@ export default function TabLayout() {
       }}>
       <Tabs.Screen
         name="index"
-        options={{
+        options={{ href: null,
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),
         }}
       />
@@ -56,6 +47,45 @@ export default function TabLayout() {
           title: 'Teacher Profile', 
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="StudentsScreen"
+        options={{
+          title: 'Students',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'people' : 'people-outline'} 
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="TeacherClassesScreen"
+        options={{
+          title: 'Classes',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'book' : 'book-outline'} 
+              size={24}
+              color={color}
+            />
+          ),
+        }}
+      />;
+      <Tabs.Screen
+        name="TeachersScreen" // Newly added TeachersScreen
+        options={{
+          title: 'Teachers',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'school' : 'school-outline'}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />

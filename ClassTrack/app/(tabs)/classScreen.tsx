@@ -1,9 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Appbar, Card, Text, ProgressBar, Avatar, IconButton, Button } from 'react-native-paper';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type RootStackParamList = {
   TeacherProfile: undefined;
@@ -16,6 +15,8 @@ type RootStackParamList = {
 
 type ClassScreenRouteProp = RouteProp<RootStackParamList, 'ClassScreen'>;
 
+const MAX_ABSENCES = 5;
+
 interface AttendanceRecord {
   id: string;
   studentName: string;
@@ -23,39 +24,16 @@ interface AttendanceRecord {
   isPresent: boolean;
 }
 
-const MAX_ABSENCES = 5;
-
-const AbsenceProgressBar: React.FC<{ absences: number }> = ({ absences }) => {
-  const progress = (absences / MAX_ABSENCES) * 100;
-  
-  return (
-    <View style={styles.progressBarContainer}>
-      <View style={styles.progressBarBackground}>
-        <View 
-          style={[
-            styles.progressBarFill,
-            { width: `${progress}%` },
-            absences >= MAX_ABSENCES && styles.progressBarFillMax
-          ]} 
-        />
-      </View>
-      <Text style={styles.progressText}>{absences}/{MAX_ABSENCES}</Text>
-    </View>
-  );
-};
-
 const AttendanceScreen: React.FC = () => {
   const route = useRoute<ClassScreenRouteProp>();
   const navigation = useNavigation();
 
-
   const defaultParams = {
     subject: "Sin nombre",
     schedule: "Horario no disponible",
-    classroom: "Aula no disponible"
+    classroom: "Aula no disponible",
   };
 
- 
   const { subject, schedule, classroom } = route.params || defaultParams;
 
   const courseInfo = {
@@ -94,53 +72,80 @@ const AttendanceScreen: React.FC = () => {
     },
   ];
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('userName');
+      await AsyncStorage.removeItem('userEmail');
+      navigation.navigate('index'); // Navegar a la pantalla de inicio o login
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.title}>{courseInfo.name}</Text>
-      </View>
+      {/* Appbar */}
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => navigation.goBack()} />
+        <Appbar.Content title={courseInfo.name} />
+        <Appbar.Action icon="logout" onPress={handleLogout} />
+      </Appbar.Header>
 
-      <View style={styles.courseInfo}>
-        <Text style={styles.courseInfoText}>Horario: {courseInfo.schedule}</Text>
-        <Text style={styles.courseInfoText}>Aula: {courseInfo.classroom}</Text>
-        <Text style={styles.courseInfoText}>Carrera y Grupo: {courseInfo.group}</Text>
-        <Text style={styles.courseInfoText}>Límite de inasistencias: {courseInfo.maxAbsences}</Text>
-      </View>
+      {/* Course Information */}
+      <Card style={styles.courseInfoCard}>
+        <Card.Content>
+          <Text variant="bodyMedium">Horario: {courseInfo.schedule}</Text>
+          <Text variant="bodyMedium">Aula: {courseInfo.classroom}</Text>
+          <Text variant="bodyMedium">Carrera y Grupo: {courseInfo.group}</Text>
+          <Text variant="bodyMedium">Límite de inasistencias: {courseInfo.maxAbsences}</Text>
+        </Card.Content>
+      </Card>
 
-      <View style={styles.totalCounter}>
-        <Text style={styles.totalText}>TOTAL</Text>
-        <Text style={styles.totalNumber}>{courseInfo.totalStudents}</Text>
-        <Text style={styles.totalText}>ASISTENCIAS</Text>
-      </View>
+      {/* Total Counter */}
+      <Card style={styles.totalCounterCard}>
+        <Card.Content style={styles.totalCounterContent}>
+          <Text variant="bodySmall">TOTAL</Text>
+          <Text variant="headlineMedium">{courseInfo.totalStudents}</Text>
+          <Text variant="bodySmall">ASISTENCIAS</Text>
+        </Card.Content>
+      </Card>
 
+      {/* Attendance List Header */}
       <View style={styles.listHeader}>
-        <Text style={styles.listHeaderText}>Asistencias - Noviembre 05</Text>
-        <TouchableOpacity>
-          <Ionicons name="search" size={24} color="black" />
-        </TouchableOpacity>
+        <Text variant="titleMedium">Asistencias - Noviembre 05</Text>
+        <IconButton icon="magnify" size={24} onPress={() => {}} />
       </View>
 
-      <ScrollView style={styles.attendanceList}>
+      {/* Attendance List */}
+      <ScrollView>
         {attendanceRecords.map((record) => (
-          <View key={record.id} style={styles.attendanceRow}>
-            <View style={styles.studentInfo}>
-              <Text style={styles.studentName}>{record.studentName}</Text>
-              <View style={styles.absencesContainer}>
-                <Text style={styles.absencesLabel}>Inasistencias acumuladas</Text>
-                <AbsenceProgressBar absences={record.accumulatedAbsences} />
+          <Card key={record.id} style={styles.attendanceCard}>
+            <Card.Content style={styles.attendanceContent}>
+              <Avatar.Text 
+                size={40} 
+                label={record.studentName.charAt(0)} 
+                style={record.isPresent ? styles.presentAvatar : styles.absentAvatar} 
+              />
+              <View style={styles.attendanceDetails}>
+                <Text variant="bodyMedium">{record.studentName}</Text>
+                <Text variant="bodySmall">Inasistencias acumuladas</Text>
+                <ProgressBar
+                  progress={record.accumulatedAbsences / MAX_ABSENCES}
+                  color={record.accumulatedAbsences >= MAX_ABSENCES ? '#F44336' : '#4CAF50'}
+                  style={styles.progressBar}
+                />
+                <Text variant="bodySmall">
+                  {record.accumulatedAbsences}/{MAX_ABSENCES}
+                </Text>
               </View>
-            </View>
-            <View style={[styles.statusIndicator, record.isPresent ? styles.present : styles.absent]}>
-              {record.isPresent ? (
-                <Ionicons name="checkmark" size={24} color="white" />
-              ) : (
-                <Ionicons name="close" size={24} color="white" />
-              )}
-            </View>
-          </View>
+              <IconButton 
+                icon={record.isPresent ? "check-circle" : "close-circle"} 
+                size={24} 
+                iconColor={record.isPresent ? '#4CAF50' : '#F44336'} 
+              />
+            </Card.Content>
+          </Card>
         ))}
       </ScrollView>
     </View>
@@ -150,122 +155,54 @@ const AttendanceScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F9FAFB',
   },
-  header: {
-    flexDirection: 'row',
+  courseInfoCard: {
+    margin: 16,
+    borderRadius: 8,
+  },
+  totalCounterCard: {
+    marginHorizontal: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+  },
+  totalCounterContent: {
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  courseInfo: {
-    padding: 16,
-    backgroundColor: '#f8f8f8',
-  },
-  courseInfoText: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  totalCounter: {
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  totalText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  totalNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginVertical: 4,
   },
   listHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    marginHorizontal: 16,
+    marginBottom: 8,
   },
-  listHeaderText: {
-    fontSize: 16,
-    fontWeight: '500',
+  attendanceCard: {
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 8,
   },
-  attendanceList: {
-    flex: 1,
-  },
-  attendanceRow: {
+  attendanceContent: {
     flexDirection: 'row',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
     alignItems: 'center',
   },
-  studentInfo: {
+  attendanceDetails: {
     flex: 1,
-  },
-  studentName: {
-    fontSize: 16,
-    marginBottom: 4,
-  },
-  absencesContainer: {
-    marginTop: 4,
-  },
-  absencesLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  statusIndicator: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginLeft: 16,
   },
-  present: {
+  progressBar: {
+    height: 8,
+    marginVertical: 4,
+    borderRadius: 4,
+  },
+  presentAvatar: {
     backgroundColor: '#4CAF50',
   },
-  absent: {
+  absentAvatar: {
     backgroundColor: '#F44336',
   },
-  progressBarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  progressBarBackground: {
-    flex: 1,
-    height: 8,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginRight: 8,
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: '#000000',
-    borderRadius: 4,
-  },
-  progressBarFillMax: {
-    backgroundColor: '#FF0000',
-  },
-  progressText: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 8,
-    width: 30,
+  logoutButton: {
+    margin: 16,
+    borderRadius: 8,
   },
 });
 

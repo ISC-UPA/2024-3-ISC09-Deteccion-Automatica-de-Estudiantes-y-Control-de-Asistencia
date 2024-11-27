@@ -2,7 +2,7 @@
 
 ## Overview
 
-This monorepo contains multiple packages related to the ViveHUB application. The main packages are:
+This monorepo contains multiple packages related to the ClassTrack application. The main packages are:
 
 - `RaspberryApp`: Placeholder for Raspberry Pi related applications.
 - `backend`: Backend API built with KeystoneJS.
@@ -18,18 +18,18 @@ This directory is currently a placeholder for future Raspberry Pi related applic
 
 #### backend
 
-This package contains the backend API for the ViveHUB application. It is built using KeystoneJS.
+This package contains the backend API for the ClassTrack application. It is built using KeystoneJS.
 
 - **Main Files:**
   - `keystone.ts`: KeystoneJS configuration and setup.
   - `schema.graphql`: GraphQL schema definitions.
   - `schema.prisma`: Prisma schema definitions.
 
-For more details, refer to the [README.md](packages/vive-hub-api/README.md) in the `vive-hub-api` directory.
+For more details, refer to the [README.md](packages/backend/README.md) in the `backend` directory.
 
 #### ClassTrack
 
-This package contains the frontend application for the ViveHUB platform. It is built using React.
+This package contains the frontend application for the ClassTrack platform. It is built using React.
 
 - **Main Files:**
   - `app/`: Contains the main application layout and pages.
@@ -41,7 +41,7 @@ This package contains the frontend application for the ViveHUB platform. It is b
   - `tsconfig.json`: TypeScript configuration file.
   - `babel.config.js`: Babel configuration file.
 
-For more details, refer to the [README.md](packages/vive-hub-app/README.md) in the `vive-hub-app` directory.
+For more details, refer to the [README.md](packages/ClassTrack/README.md) in the `ClassTrack` directory.
 
 ## Getting Started
 
@@ -55,7 +55,7 @@ For more details, refer to the [README.md](packages/vive-hub-app/README.md) in t
 1. Clone the repository:
     ```sh
     git clone <repository-url>
-    cd 2024-3-PM-ViveHUBApp
+    cd 2024-3-ISC09-Deteccion-Automatica-de-Estudiantes-y-Control-de-Asistencia
     ```
 
 2. Install dependencies:
@@ -65,12 +65,12 @@ For more details, refer to the [README.md](packages/vive-hub-app/README.md) in t
 
 ### Running the Applications
 
-#### Backend (vive-hub-api)
+#### Backend (backend)
 
-Navigate to the `vive-hub-api` directory and start the KeystoneJS server:
+Navigate to the `backend` directory and start the KeystoneJS server:
 
     ```sh
-    cd packages/vive-hub-api
+    cd packages/backend
     yarn start
     ```
 
