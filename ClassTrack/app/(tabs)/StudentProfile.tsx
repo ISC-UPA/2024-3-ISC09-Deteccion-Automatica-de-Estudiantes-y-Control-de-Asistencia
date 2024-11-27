@@ -2,10 +2,10 @@ import React from 'react';
 import { ScrollView, StyleSheet, Image, View } from 'react-native';
 import { Card, Title, Paragraph, ProgressBar, Text, Button, Appbar } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
-const StudentScreen = () => {
-  const navigation = useNavigation();
+const StudentProfile = () => {
+  const router = useRouter(); // Reemplazo de useNavigation para trabajar con expo-router
 
   const absenceData = [
     { subject: 'Sistemas Embebidos', absences: 4, maxAbsences: 10 },
@@ -41,7 +41,7 @@ const StudentScreen = () => {
       await AsyncStorage.removeItem('accessToken');
       await AsyncStorage.removeItem('userName');
       await AsyncStorage.removeItem('userEmail');
-      navigation.navigate('index'); // Navegar a la pantalla de inicio o login
+      router.push('/'); // Navegar a la pantalla de inicio o login
     } catch (error) {
       console.error('Error during logout:', error);
     }
@@ -50,7 +50,7 @@ const StudentScreen = () => {
   return (
     <View style={styles.container}>
       <Appbar.Header>
-        <Appbar.BackAction onPress={() => console.log('Go back')} />
+        <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Perfil del Estudiante" />
         <Appbar.Action icon="logout" onPress={handleLogout} />
       </Appbar.Header>
@@ -75,7 +75,7 @@ const StudentScreen = () => {
       </ScrollView>
       <Button
         mode="contained"
-        onPress={() => console.log('Go back')}
+        onPress={() => router.back()}
         style={styles.backButton}
         icon="arrow-left"
       >
@@ -150,4 +150,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StudentScreen;
+export default StudentProfile;

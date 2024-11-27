@@ -13,22 +13,31 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
-        options={{ href: null,
+        options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+            <Ionicons
+              name={focused ? 'home' : 'home-outline'}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
       <Tabs.Screen
-        name="StudentScreen"
+        name="StudentProfile"
         options={{
           title: 'Student',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
+            <Ionicons
+              name={focused ? 'person' : 'person-outline'}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
@@ -37,16 +46,24 @@ export default function TabLayout() {
         options={{
           title: 'Class Info',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'reader' : 'reader-outline'} color={color} />
+            <Ionicons
+              name={focused ? 'reader' : 'reader-outline'}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="TeacherProfileScreen"
         options={{
-          title: 'Teacher Profile', 
+          title: 'Teacher Profile',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'person' : 'person-outline'} color={color} />
+            <Ionicons
+              name={focused ? 'person' : 'person-outline'}
+              size={24}
+              color={color}
+            />
           ),
         }}
       />
@@ -56,7 +73,7 @@ export default function TabLayout() {
           title: 'Students',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'people' : 'people-outline'} 
+              name={focused ? 'people' : 'people-outline'}
               size={24}
               color={color}
             />
@@ -69,15 +86,15 @@ export default function TabLayout() {
           title: 'Classes',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? 'book' : 'book-outline'} 
+              name={focused ? 'book' : 'book-outline'}
               size={24}
               color={color}
             />
           ),
         }}
-      />;
+      />
       <Tabs.Screen
-        name="TeachersScreen" // Newly added TeachersScreen
+        name="TeachersScreen"
         options={{
           title: 'Teachers',
           tabBarIcon: ({ color, focused }) => (
