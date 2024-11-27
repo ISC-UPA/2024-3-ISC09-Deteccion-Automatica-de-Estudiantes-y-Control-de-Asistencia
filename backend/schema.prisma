@@ -19,6 +19,7 @@ model User {
   role                               String            @default("student")
   studentID                          String            @default("")
   userInstitutions                   UserInstitution[] @relation("UserInstitution_user")
+  group                              String            @default("")
   from_Authentication_associatedUser Authentication[]  @relation("Authentication_associatedUser")
   from_RecognitionLog_user           RecognitionLog[]  @relation("RecognitionLog_user")
   from_Class_teacher                 Class[]           @relation("Class_teacher")
@@ -68,6 +69,7 @@ model Class {
   schedule              String       @default("")
   teacher               User?        @relation("Class_teacher", fields: [teacherId], references: [id])
   teacherId             String?      @map("teacher")
+  room                  String       @default("")
   from_Attendance_class Attendance[] @relation("Attendance_class")
 
   @@index([teacherId])

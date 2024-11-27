@@ -10,6 +10,7 @@ type User {
   studentID: String
   userInstitutions(where: UserInstitutionWhereInput! = {}, orderBy: [UserInstitutionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserInstitutionWhereUniqueInput): [UserInstitution!]
   userInstitutionsCount(where: UserInstitutionWhereInput! = {}): Int
+  group: String
 }
 
 type PasswordState {
@@ -31,6 +32,7 @@ input UserWhereInput {
   role: StringFilter
   studentID: StringFilter
   userInstitutions: UserInstitutionManyRelationFilter
+  group: StringFilter
 }
 
 input IDFilter {
@@ -84,6 +86,7 @@ input UserOrderByInput {
   email: OrderDirection
   role: OrderDirection
   studentID: OrderDirection
+  group: OrderDirection
 }
 
 enum OrderDirection {
@@ -98,6 +101,7 @@ input UserUpdateInput {
   role: String
   studentID: String
   userInstitutions: UserInstitutionRelateToManyForUpdateInput
+  group: String
 }
 
 input UserInstitutionRelateToManyForUpdateInput {
@@ -119,6 +123,7 @@ input UserCreateInput {
   role: String
   studentID: String
   userInstitutions: UserInstitutionRelateToManyForCreateInput
+  group: String
 }
 
 input UserInstitutionRelateToManyForCreateInput {
@@ -372,6 +377,7 @@ type Class {
   description: String
   schedule: String
   teacher: User
+  room: String
 }
 
 input ClassWhereUniqueInput {
@@ -387,6 +393,7 @@ input ClassWhereInput {
   description: StringFilter
   schedule: StringFilter
   teacher: UserWhereInput
+  room: StringFilter
 }
 
 input ClassOrderByInput {
@@ -394,6 +401,7 @@ input ClassOrderByInput {
   name: OrderDirection
   description: OrderDirection
   schedule: OrderDirection
+  room: OrderDirection
 }
 
 input ClassUpdateInput {
@@ -401,6 +409,7 @@ input ClassUpdateInput {
   description: String
   schedule: String
   teacher: UserRelateToOneForUpdateInput
+  room: String
 }
 
 input ClassUpdateArgs {
@@ -413,6 +422,7 @@ input ClassCreateInput {
   description: String
   schedule: String
   teacher: UserRelateToOneForCreateInput
+  room: String
 }
 
 type Attendance {
