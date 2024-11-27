@@ -1,31 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+  Modal,
+  TextInput,
+  Button,
+} from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { useRouter } from 'expo-router';
 
-type RootStackParamList = {
-  ClassDetails: {
-    subject: string;
-    schedule: string;
-    description: string;
-  };
-};
-
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'ClassDetails'>;
-
-interface Class {
-  subject: string;
+interface ClassData {
+  id: string;
+  name: string;
   schedule: string;
   description: string;
 }
 
-// GraphQL Query
 const GET_CLASSES = gql`
   query GetClasses {
     classes {
+      id
       name
       schedule
       description
@@ -33,30 +33,48 @@ const GET_CLASSES = gql`
   }
 `;
 
-const ClassCard: React.FC<Class> = ({ subject, schedule, description }) => {
-  const navigation = useNavigation<NavigationProp>();
+const CREATE_CLASS = gql`
+  mutation Mutation($data: ClassCreateInput!) {
+    createClass(data: $data) {
+      name
+      description
+      schedule
+      teacher {
+        name
+      }
+    }
+  }
+`;
 
-  const handlePress = () => {
-    navigation.navigate('ClassDetails', { subject, schedule, description });
-  };
-
-  return (
-    <TouchableOpacity style={styles.classCard} onPress={handlePress}>
-      <View style={styles.classInfo}>
-        <Text style={styles.classSubject}>{subject}</Text>
-        <Text style={styles.classDetails}>{schedule}</Text>
-        <Text style={styles.classDetails}>{description}</Text>
-      </View>
-      <FontAwesome name="chevron-right" size={20} color="#666" />
-    </TouchableOpacity>
-  );
-};
+const ClassCard: React.FC<{ classData: ClassData; onPress: (classData: ClassData) => void }> = ({
+  classData,
+  onPress,
+}) => (
+  <TouchableOpacity style={styles.classCard} onPress={() => onPress(classData)}>
+    <View style={styles.classInfo}>
+      <Text style={styles.classSubject}>{classData.name}</Text>
+      <Text style={styles.classDetails}>{classData.schedule}</Text>
+      <Text style={styles.classDetails}>{classData.description}</Text>
+    </View>
+    <FontAwesome name="chevron-right" size={20} color="#666" />
+  </TouchableOpacity>
+);
 
 const ClassesScreen: React.FC = () => {
-  const [sortOption, setSortOption] = useState<'alphabetical' | 'date'>('alphabetical');
-  const { loading, error, data } = useQuery(GET_CLASSES);
+  const router = useRouter();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [className, setClassName] = useState('');
+  const [classDescription, setClassDescription] = useState('');
+  const [classSchedule, setClassSchedule] = useState('');
 
-  if (loading) {
+  const { loading: loadingClasses, error: errorClasses, data: dataClasses } = useQuery(GET_CLASSES);
+
+  const [createClass] = useMutation(CREATE_CLASS, {
+    refetchQueries: [GET_CLASSES],
+    onCompleted: () => setModalVisible(false),
+  });
+
+  if (loadingClasses) {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -64,92 +82,66 @@ const ClassesScreen: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (errorClasses) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Error loading classes: {error.message}</Text>
+        <Text style={styles.errorText}>Error loading classes: {errorClasses.message}</Text>
       </View>
     );
   }
 
-  const classes: Class[] = data.classes.map((item: any) => ({
-    subject: item.name,
-    schedule: item.schedule,
-    classroom: item.description || 'No description',
-  }));
-
-  const sortData = () => {
-    if (sortOption === 'alphabetical') {
-      return [...classes].sort((a, b) => a.subject.localeCompare(b.subject));
-    } else if (sortOption === 'date') {
-      return [...classes].sort((a, b) => a.schedule.localeCompare(b.schedule));
-    }
-    return classes;
+  const handleClassPress = (classData: ClassData) => {
+    router.push({
+      pathname: '/(tabs)/classScreen',
+      params: {
+        subject: classData.name,
+        schedule: classData.schedule,
+        classroom: classData.description,
+      },
+    });
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Classes</Text>
-        <RNPickerSelect
-          onValueChange={(value) => setSortOption(value)}
-          items={[
-            { label: 'Alphabetical', value: 'alphabetical' },
-            { label: 'Date', value: 'date' },
-          ]}
-          style={{
-            ...pickerSelectStyles,
-            placeholder: pickerSelectStyles.placeholder,
-          }}
-          value={sortOption}
-          placeholder={{ label: 'Select filter', value: null }}
-          useNativeAndroidPickerStyle={false}
-        />
-      </View>
       <FlatList
-        contentContainerStyle={styles.listContainer}
-        data={sortData()}
-        keyExtractor={(item, index) => index.toString()}
+        data={dataClasses.classes}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ClassCard subject={item.subject} schedule={item.schedule} description={item.description} />
+          <ClassCard classData={item} onPress={handleClassPress} />
         )}
       />
     </View>
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
-  loaderContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    fontSize: 16,
-    color: 'red',
+    backgroundColor: '#f5f5f5',
+    padding: 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    marginBottom: 16,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#000',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  addButton: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  listContainer: {
+    paddingBottom: 16,
   },
   classCard: {
     flexDirection: 'row',
@@ -157,11 +149,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 16,
-    borderRadius: 10,
-    marginHorizontal: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -172,16 +161,55 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   classSubject: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#000',
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 4,
   },
   classDetails: {
     fontSize: 14,
     color: '#666',
   },
-  listContainer: {
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  errorText: {
+    color: '#ff0000',
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  input: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginBottom: 16,
+    padding: 8,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: 16,
   },
 });
@@ -190,37 +218,24 @@ const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
     fontSize: 16,
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 10,
+    borderColor: '#ccc',
+    borderRadius: 8,
     color: '#000',
     backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    marginRight: 16,
+    marginHorizontal: 16,
   },
   inputAndroid: {
     fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 10,
+    borderColor: '#ccc',
+    borderRadius: 8,
     color: '#000',
     backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    marginRight: 16,
-  },
-  placeholder: {
-    color: '#aaa',
+    marginHorizontal: 16,
   },
 });
 
