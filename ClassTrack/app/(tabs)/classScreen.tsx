@@ -1,158 +1,177 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Appbar, Card, Text, ProgressBar, Avatar, IconButton } from 'react-native-paper';
+import { ScrollView, StyleSheet, View, Alert } from 'react-native';
+import { Appbar, Card, Text, ActivityIndicator, ProgressBar, Button } from 'react-native-paper';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { gql, useQuery, useMutation } from '@apollo/client';
 
 type RootStackParamList = {
-  TeacherProfile: undefined;
   ClassScreen: {
-    subject: string;
-    schedule: string;
-    classroom: string;
+    id: string;
   };
 };
 
 type ClassScreenRouteProp = RouteProp<RootStackParamList, 'ClassScreen'>;
 
-const MAX_ABSENCES = 5;
+const GET_CLASS_DETAILS = gql`
+  query Query($where: ClassWhereInput!) {
+    classes(where: $where) {
+      id
+      name
+      schedule
+      description
+      teacher {
+        name
+      }
+    }
+  }
+`;
 
-interface AttendanceRecord {
-  id: string;
-  studentName: string;
-  accumulatedAbsences: number;
-  isPresent: boolean;
-}
+const GET_ATTENDANCES = gql`
+  query Attendance($where: AttendanceWhereInput!) {
+    attendances(where: $where) {
+      class {
+        id
+        name
+      }
+      user {
+        name
+      }
+    }
+  }
+`;
 
-const AttendanceScreen: React.FC = () => {
+const DELETE_CLASS = gql`
+  mutation DeleteClass($where: ClassWhereUniqueInput!) {
+    deleteClass(where: $where) {
+      id
+      name
+    }
+  }
+`;
+
+const ClassScreen: React.FC = () => {
   const route = useRoute<ClassScreenRouteProp>();
   const navigation = useNavigation();
+  const { id } = route.params;
 
-  const defaultParams = {
-    subject: "Sin nombre",
-    schedule: "Horario no disponible",
-    classroom: "Aula no disponible",
-  };
-
-  const { subject, schedule, classroom } = route.params || defaultParams;
-
-  const courseInfo = {
-    name: subject,
-    schedule: schedule,
-    classroom: classroom,
-    group: "ISC09A",
-    maxAbsences: MAX_ABSENCES,
-    totalStudents: 24,
-  };
-
-  const today = new Date().toLocaleDateString('es-MX', {
-    day: 'numeric',
-    month: 'long',
+  const { loading: classLoading, error: classError, data: classData } = useQuery(GET_CLASS_DETAILS, {
+    variables: { where: { id: { equals: id } } },
   });
 
-  const attendanceRecords: AttendanceRecord[] = [
-    {
-      id: '1',
-      studentName: 'Carlos Pérez',
-      accumulatedAbsences: 3,
-      isPresent: true,
-    },
-    {
-      id: '2',
-      studentName: 'María López',
-      accumulatedAbsences: 4,
-      isPresent: false,
-    },
-    {
-      id: '3',
-      studentName: 'Luis Hernández',
-      accumulatedAbsences: 2,
-      isPresent: true,
-    },
-    {
-      id: '4',
-      studentName: 'Ana Ramírez',
-      accumulatedAbsences: 1,
-      isPresent: false,
-    },
-  ];
+  const { loading: attendanceLoading, error: attendanceError, data: attendanceData } = useQuery(GET_ATTENDANCES, {
+    variables: { where: { class: { id: { equals: id } } } },
+  });
 
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem('accessToken');
-      await AsyncStorage.removeItem('userName');
-      await AsyncStorage.removeItem('userEmail');
-      navigation.navigate('Login'); // Ensure this route exists
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
+  const [deleteClass] = useMutation(DELETE_CLASS, {
+    onCompleted: () => {
+      Alert.alert('Éxito', 'La clase ha sido eliminada.');
+      navigation.goBack(); // Regresa a la pantalla anterior después de eliminar
+    },
+    onError: (error) => {
+      Alert.alert('Error', error.message);
+    },
+  });
+
+  const handleDeleteClass = () => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que deseas eliminar esta clase?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            deleteClass({ variables: { where: { id } } });
+          },
+        },
+      ]
+    );
   };
+
+  if (classLoading || attendanceLoading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#6200EE" />
+        <Text style={styles.loaderText}>Cargando información...</Text>
+      </View>
+    );
+  }
+
+  if (classError || attendanceError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>
+          Error: {classError?.message || attendanceError?.message}
+        </Text>
+      </View>
+    );
+  }
+
+  const classInfo = classData?.classes?.[0];
+  const attendances = attendanceData?.attendances || [];
+
+  const renderAttendanceBar = (user: string, count: number) => {
+    const progress = count / 10; // Ajustar según el máximo deseado
+    const isCritical = count >= 10;
+
+    return (
+      <Card style={styles.attendanceCard} key={user}>
+        <Card.Content>
+          <View style={styles.attendanceRow}>
+            <Text style={styles.attendanceName}>{user}</Text>
+            <Text style={[styles.attendanceCount, isCritical && styles.criticalText]}>
+              {count}/10
+            </Text>
+          </View>
+          <ProgressBar
+            progress={progress}
+            color={isCritical ? '#F44336' : '#6200EE'}
+            style={styles.progressBar}
+          />
+        </Card.Content>
+      </Card>
+    );
+  };
+
+  const attendanceCounts: { [key: string]: number } = {};
+  attendances.forEach((attendance: any) => {
+    const userName = attendance.user.name;
+    attendanceCounts[userName] = (attendanceCounts[userName] || 0) + 1;
+  });
 
   return (
     <View style={styles.container}>
       {/* Appbar */}
       <Appbar.Header>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={courseInfo.name} />
-        <Appbar.Action icon="logout" onPress={handleLogout} />
+        <Appbar.Content title={classInfo?.name || 'Clase'} />
       </Appbar.Header>
 
-      {/* Course Information */}
+      {/* Class Information */}
       <Card style={styles.courseInfoCard}>
         <Card.Content>
-          <Text variant="bodyMedium">Horario: {courseInfo.schedule}</Text>
-          <Text variant="bodyMedium">Aula: {courseInfo.classroom}</Text>
-          <Text variant="bodyMedium">Carrera y Grupo: {courseInfo.group}</Text>
-          <Text variant="bodyMedium">Límite de inasistencias: {courseInfo.maxAbsences}</Text>
+          <Text variant="bodyMedium">Nombre: {classInfo?.name || 'No disponible'}</Text>
+          <Text variant="bodyMedium">Horario: {classInfo?.schedule || 'No disponible'}</Text>
+          <Text variant="bodyMedium">Descripción: {classInfo?.description || 'No disponible'}</Text>
+          <Text variant="bodyMedium">Docente: {classInfo?.teacher?.name || 'No asignado'}</Text>
         </Card.Content>
       </Card>
-
-      {/* Total Counter */}
-      <Card style={styles.totalCounterCard}>
-        <Card.Content style={styles.totalCounterContent}>
-          <Text variant="bodySmall">TOTAL</Text>
-          <Text variant="headlineMedium">{courseInfo.totalStudents}</Text>
-          <Text variant="bodySmall">ASISTENCIAS</Text>
-        </Card.Content>
-      </Card>
-
-      {/* Attendance List Header */}
-      <View style={styles.listHeader}>
-        <Text variant="titleMedium">{`Asistencias - ${today}`}</Text>
-        <IconButton icon="magnify" size={24} onPress={() => console.log('Search pressed')} />
-      </View>
 
       {/* Attendance List */}
       <ScrollView>
-        {attendanceRecords.map((record) => (
-          <Card key={record.id} style={styles.attendanceCard}>
-            <Card.Content style={styles.attendanceContent}>
-              <Avatar.Text
-                size={40}
-                label={record.studentName.charAt(0)}
-                style={record.isPresent ? styles.presentAvatar : styles.absentAvatar}
-              />
-              <View style={styles.attendanceDetails}>
-                <Text variant="bodyMedium">{record.studentName}</Text>
-                <Text variant="bodySmall">Inasistencias acumuladas</Text>
-                <ProgressBar
-                  progress={record.accumulatedAbsences / MAX_ABSENCES}
-                  color={record.accumulatedAbsences >= MAX_ABSENCES ? '#F44336' : '#4CAF50'}
-                  style={styles.progressBar}
-                />
-                <Text variant="bodySmall">
-                  {record.accumulatedAbsences}/{MAX_ABSENCES}
-                </Text>
-              </View>
-              <IconButton
-                icon={record.isPresent ? 'check-circle' : 'close-circle'}
-                size={24}
-                iconColor={record.isPresent ? '#4CAF50' : '#F44336'}
-              />
-            </Card.Content>
-          </Card>
-        ))}
+        {Object.entries(attendanceCounts).map(([user, count]) => renderAttendanceBar(user, count))}
       </ScrollView>
+
+      {/* Delete Button */}
+      <Button
+        mode="contained"
+        onPress={handleDeleteClass}
+        style={styles.deleteButton}
+        icon="delete"
+      >
+        Eliminar Clase
+      </Button>
     </View>
   );
 };
@@ -162,49 +181,59 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F9FAFB',
   },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#6200EE',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#F44336',
+    fontSize: 16,
+  },
   courseInfoCard: {
     margin: 16,
     borderRadius: 8,
   },
-  totalCounterCard: {
-    marginHorizontal: 16,
-    marginBottom: 16,
+  attendanceCard: {
+    margin: 16,
     borderRadius: 8,
   },
-  totalCounterContent: {
-    alignItems: 'center',
-  },
-  listHeader: {
+  attendanceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 16,
     marginBottom: 8,
   },
-  attendanceCard: {
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 8,
+  attendanceName: {
+    fontSize: 16,
+    fontWeight: '600',
   },
-  attendanceContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  attendanceCount: {
+    fontSize: 14,
+    color: '#757575',
   },
-  attendanceDetails: {
-    flex: 1,
-    marginLeft: 16,
+  criticalText: {
+    color: '#F44336',
   },
   progressBar: {
     height: 8,
-    marginVertical: 4,
     borderRadius: 4,
   },
-  presentAvatar: {
-    backgroundColor: '#4CAF50',
-  },
-  absentAvatar: {
+  deleteButton: {
+    margin: 16,
+    borderRadius: 8,
     backgroundColor: '#F44336',
   },
 });
 
-export default AttendanceScreen;
+export default ClassScreen;

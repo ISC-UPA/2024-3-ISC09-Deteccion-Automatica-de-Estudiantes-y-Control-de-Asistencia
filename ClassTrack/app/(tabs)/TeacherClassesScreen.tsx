@@ -100,9 +100,7 @@ const ClassesScreen: React.FC = () => {
     router.push({
       pathname: '/(tabs)/classScreen',
       params: {
-        subject: classData.name,
-        schedule: classData.schedule,
-        classroom: classData.description,
+        id: classData.id, // Corrected to pass class ID
       },
     });
   };
