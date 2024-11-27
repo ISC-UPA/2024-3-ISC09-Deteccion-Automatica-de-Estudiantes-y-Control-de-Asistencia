@@ -1,23 +1,89 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Image, View } from 'react-native';
 import { Card, Title, Paragraph, ProgressBar, Text, Button, Appbar } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import axios from 'axios';
+
+interface AbsenceData {
+  subject: string;
+  count: number; // Cantidad de veces que aparece la materia
+}
 
 const StudentProfile = () => {
-  const router = useRouter(); // Reemplazo de useNavigation para trabajar con expo-router
+  const router = useRouter();
+  const { studentId } = useLocalSearchParams(); // Obtener el studentId desde la navegación
 
-  const absenceData = [
-    { subject: 'Sistemas Embebidos', absences: 4, maxAbsences: 10 },
-    { subject: 'Programación Web', absences: 10, maxAbsences: 10 },
-    { subject: 'Inglés', absences: 7, maxAbsences: 10 },
-    { subject: 'Español', absences: 2, maxAbsences: 10 },
-    { subject: 'Seguridad Informática', absences: 3, maxAbsences: 10 },
-  ];
+  const [studentData, setStudentData] = useState({ name: '', studentID: '', email: '' });
+  const [absenceData, setAbsenceData] = useState<AbsenceData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const renderAbsenceBar = (subject: string, absences: number, maxAbsences: number) => {
-    const progress = absences / maxAbsences;
-    const isCritical = absences === maxAbsences;
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      try {
+        const studentResponse = await axios.post(
+          'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+          {
+            query: `
+              query Query($where: UserWhereInput!) {
+                users(where: $where) {
+                  name
+                  studentID
+                  email
+                }
+              }
+            `,
+            variables: { where: { id: { equals: studentId } } },
+          }
+        );
+        setStudentData(studentResponse.data.data.users[0]);
+
+        const absenceResponse = await axios.post(
+          'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+          {
+            query: `
+              query Query($where: AttendanceWhereInput!) {
+                attendances(where: $where) {
+                  class {
+                    name
+                  }
+                }
+              }
+            `,
+            variables: { where: { user: { id: { equals: studentId } } } },
+          }
+        );
+
+        const classCounts: { [key: string]: number } = {};
+
+        absenceResponse.data.data.attendances.forEach((attendance: any) => {
+          const className = attendance.class.name;
+          if (classCounts[className]) {
+            classCounts[className] += 1;
+          } else {
+            classCounts[className] = 1;
+          }
+        });
+
+        const formattedAbsenceData = Object.keys(classCounts).map((className) => ({
+          subject: className,
+          count: classCounts[className],
+        }));
+
+        setAbsenceData(formattedAbsenceData);
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (studentId) fetchStudentData();
+  }, [studentId]);
+
+  const renderAbsenceBar = (subject: string, count: number) => {
+    const progress = count / 10; // Puedes ajustar el valor máximo (10) según lo que consideres
+    const isCritical = count >= 10; // Define cuándo es crítico
 
     return (
       <Card style={styles.card} key={subject}>
@@ -27,7 +93,7 @@ const StudentProfile = () => {
               {subject}
             </Title>
             <Text style={[styles.absenceText, isCritical && styles.criticalText]}>
-              {absences}/{maxAbsences}
+              {count}/10
             </Text>
           </View>
           <ProgressBar progress={progress} color={isCritical ? '#F44336' : '#6200EE'} style={styles.progressBar} />
@@ -47,6 +113,14 @@ const StudentProfile = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Cargando...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Appbar.Header>
@@ -64,14 +138,13 @@ const StudentProfile = () => {
               style={styles.profileImage}
             />
             <View style={styles.profileInfo}>
-              <Title>Sara Itzel García Vidal</Title>
-              <Paragraph>ID: UP210612 - ISC09A</Paragraph>
+              <Title>{studentData.name}</Title>
+              <Paragraph>ID: {studentData.studentID}</Paragraph>
+              <Paragraph>Email: {studentData.email}</Paragraph>
             </View>
           </Card.Content>
         </Card>
-        {absenceData.map(({ subject, absences, maxAbsences }) =>
-          renderAbsenceBar(subject, absences, maxAbsences)
-        )}
+        {absenceData.map(({ subject, count }) => renderAbsenceBar(subject, count))}
       </ScrollView>
       <Button
         mode="contained"
@@ -86,68 +159,19 @@ const StudentProfile = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 80, // Espaciado para el botón inferior
-  },
-  profileCard: {
-    marginBottom: 16,
-    elevation: 2, // Sombra para darle profundidad
-  },
-  profileContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 16,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  card: {
-    marginBottom: 16,
-    elevation: 2,
-  },
-  subjectRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  subjectTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    flex: 1, // Prioriza el uso del espacio para el título
-    marginRight: 8,
-  },
-  progressBar: {
-    height: 8,
-    borderRadius: 4,
-  },
-  absenceText: {
-    fontSize: 14,
-    color: '#757575',
-    flexShrink: 0, // Evita que el texto se comprima
-  },
-  criticalText: {
-    color: '#F44336',
-  },
-  backButton: {
-    margin: 16,
-    borderRadius: 8,
-  },
-  logoutButton: {
-    margin: 16,
-    borderRadius: 8,
-    backgroundColor: '#F44336',
-  },
+  container: { flex: 1, backgroundColor: '#F5F5F5' },
+  scrollContent: { padding: 16, paddingBottom: 80 },
+  profileCard: { marginBottom: 16, elevation: 2 },
+  profileContent: { flexDirection: 'row', alignItems: 'center' },
+  profileImage: { width: 60, height: 60, borderRadius: 30, marginRight: 16 },
+  profileInfo: { flex: 1 },
+  card: { marginBottom: 16, elevation: 2 },
+  subjectRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  subjectTitle: { fontSize: 16, fontWeight: '600', flex: 1, marginRight: 8 },
+  progressBar: { height: 8, borderRadius: 4 },
+  absenceText: { fontSize: 14, color: '#757575', flexShrink: 0 },
+  criticalText: { color: '#F44336' },
+  backButton: { margin: 16, borderRadius: 8 },
 });
 
 export default StudentProfile;
