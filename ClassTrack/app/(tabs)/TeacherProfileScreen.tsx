@@ -120,7 +120,7 @@ const TeacherProfileScreen = () => {
         }
       );
       await AsyncStorage.clear(); // Clear the user data in AsyncStorage
-      router.push('/'); // Redirect to login or home screen
+      router.push('/TeachersScreen'); // Redirect to login or home screen
     } catch (error) {
       console.error('Error deleting user:', error);
     }
