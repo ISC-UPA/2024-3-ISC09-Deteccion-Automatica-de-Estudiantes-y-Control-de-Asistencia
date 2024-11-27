@@ -149,9 +149,9 @@ const TeachersScreen: React.FC = () => {
       <FlatList
         contentContainerStyle={styles.listContainer}
         data={sortData()}
-        keyExtractor={(item) => item.studentID}
+        keyExtractor={(item) => item.id} // Use the correct `id` for keyExtractor
         renderItem={({ item }) => (
-          <TeacherCard id={item.studentID} name={item.name} studentID={item.studentID} email={item.email} />
+          <TeacherCard id={item.id} name={item.name} studentID={item.studentID} email={item.email} />
         )}
       />
       <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
