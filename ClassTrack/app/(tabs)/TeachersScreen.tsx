@@ -7,12 +7,12 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type RootStackParamList = {
-  TeacherProfile: {
+  TeacherProfileScreen: {
     teacherId: string;
   };
 };
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TeacherProfile'>;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'TeacherProfileScreen'>;
 
 interface Teacher {
   id: string;
@@ -25,7 +25,7 @@ const TeacherCard: React.FC<Teacher> = ({ id, name, studentID, email }) => {
   const navigation = useNavigation<NavigationProp>();
 
   const handlePress = () => {
-    navigation.navigate('TeacherProfile', { teacherId: id });
+    navigation.navigate('TeacherProfileScreen', { teacherId: id });
   };
 
   return (
