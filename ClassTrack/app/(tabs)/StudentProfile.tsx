@@ -130,7 +130,7 @@ const StudentProfile = () => {
         }
       );
       await AsyncStorage.clear(); // Limpiar los datos del usuario en AsyncStorage
-      router.push('/'); // Redirigir al login o página principal
+      router.push('/StudentsScreen'); // Redirigir al login o página principal
     } catch (error) {
       console.error('Error deleting user:', error);
     }
