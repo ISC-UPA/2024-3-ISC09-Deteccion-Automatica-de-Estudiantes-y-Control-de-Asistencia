@@ -13,23 +13,22 @@ import {
 import { FontAwesome } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
 import { gql, useMutation, useQuery } from '@apollo/client';
+import { useRouter } from 'expo-router';
+
+interface ClassData {
+  id: string;
+  name: string;
+  schedule: string;
+  description: string;
+}
 
 const GET_CLASSES = gql`
   query GetClasses {
     classes {
+      id
       name
       schedule
       description
-    }
-  }
-`;
-
-const GET_TEACHERS = gql`
-  query Query($where: UserWhereInput!) {
-    users(where: $where) {
-      id
-      name
-      email
     }
   }
 `;
@@ -47,28 +46,29 @@ const CREATE_CLASS = gql`
   }
 `;
 
-const ClassCard: React.FC<any> = ({ subject, schedule, description }) => (
-  <TouchableOpacity style={styles.classCard}>
+const ClassCard: React.FC<{ classData: ClassData; onPress: (classData: ClassData) => void }> = ({
+  classData,
+  onPress,
+}) => (
+  <TouchableOpacity style={styles.classCard} onPress={() => onPress(classData)}>
     <View style={styles.classInfo}>
-      <Text style={styles.classSubject}>{subject}</Text>
-      <Text style={styles.classDetails}>{schedule}</Text>
-      <Text style={styles.classDetails}>{description}</Text>
+      <Text style={styles.classSubject}>{classData.name}</Text>
+      <Text style={styles.classDetails}>{classData.schedule}</Text>
+      <Text style={styles.classDetails}>{classData.description}</Text>
     </View>
     <FontAwesome name="chevron-right" size={20} color="#666" />
   </TouchableOpacity>
 );
 
 const ClassesScreen: React.FC = () => {
+  const router = useRouter();
   const [modalVisible, setModalVisible] = useState(false);
   const [className, setClassName] = useState('');
   const [classDescription, setClassDescription] = useState('');
   const [classSchedule, setClassSchedule] = useState('');
-  const [selectedTeacher, setSelectedTeacher] = useState<string | null>(null);
 
   const { loading: loadingClasses, error: errorClasses, data: dataClasses } = useQuery(GET_CLASSES);
-  const { loading: loadingTeachers, data: dataTeachers } = useQuery(GET_TEACHERS, {
-    variables: { where: { role: { equals: 'teacher' } } },
-  });
+
   const [createClass] = useMutation(CREATE_CLASS, {
     refetchQueries: [GET_CLASSES],
     onCompleted: () => setModalVisible(false),
@@ -90,160 +90,127 @@ const ClassesScreen: React.FC = () => {
     );
   }
 
-  const handleCreateClass = () => {
-    if (!className || !classSchedule || !selectedTeacher) return;
-    createClass({
-      variables: {
-        data: {
-          name: className,
-          description: classDescription,
-          schedule: classSchedule,
-          teacher: { connect: { id: selectedTeacher } },
-        },
+  const handleClassPress = (classData: ClassData) => {
+    router.push({
+      pathname: '/(tabs)/classScreen',
+      params: {
+        subject: classData.name,
+        schedule: classData.schedule,
+        classroom: classData.description,
       },
     });
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Classes</Text>
-        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-          <Text style={styles.addButtonText}>+ Add Class</Text>
-        </TouchableOpacity>
-      </View>
-
       <FlatList
-        contentContainerStyle={styles.listContainer}
         data={dataClasses.classes}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <ClassCard subject={item.name} schedule={item.schedule} description={item.description} />
+          <ClassCard classData={item} onPress={handleClassPress} />
         )}
       />
-
-      <Modal visible={modalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Create Class</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Class Name"
-              value={className}
-              onChangeText={setClassName}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Class Schedule"
-              value={classSchedule}
-              onChangeText={setClassSchedule}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Description"
-              value={classDescription}
-              onChangeText={setClassDescription}
-            />
-
-            {loadingTeachers ? (
-              <ActivityIndicator size="small" color="#0000ff" />
-            ) : (
-              <RNPickerSelect
-                onValueChange={(value) => setSelectedTeacher(value)}
-                items={dataTeachers.users.map((teacher: any) => ({
-                  label: teacher.name,
-                  value: teacher.id,
-                }))}
-                style={pickerSelectStyles}
-                placeholder={{ label: 'Select a teacher', value: null }}
-              />
-            )}
-
-            <View style={styles.modalButtons}>
-              <Button title="Cancel" onPress={() => setModalVisible(false)} />
-              <Button title="Create" onPress={handleCreateClass} />
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
 
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  errorText: { fontSize: 16, color: 'red' },
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+    padding: 16,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#6200EE',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    marginBottom: 16,
   },
   headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
   },
   addButton: {
-    backgroundColor: '#6200EE',
-    borderRadius: 8,
+    backgroundColor: '#4CAF50',
     padding: 10,
+    borderRadius: 8,
   },
-  addButtonText: { color: '#fff', fontWeight: '600' },
-  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    width: '90%',
-  },
-  classInfo: {
-    flex: 1,
-  },
-  classSubject: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#000',
-    marginBottom: 4,
-  },
-  classDetails: {
-    fontSize: 14,
-    color: '#666',
+  addButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   listContainer: {
     paddingBottom: 16,
   },
-  modalTitle: { fontSize: 18, fontWeight: '600', marginBottom: 10 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 10,
-    width: '100%',
-  },
-  modalButtons: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
   classCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#fff',
     padding: 16,
-    borderRadius: 10,
-    marginHorizontal: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
+  },
+  classInfo: {
+    flex: 1,
+  },
+  classSubject: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  classDetails: {
+    fontSize: 14,
+    color: '#666',
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  errorText: {
+    color: '#ff0000',
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  input: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginBottom: 16,
+    padding: 8,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
   },
 });
 

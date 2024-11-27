@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Appbar, Card, Text, ProgressBar, Avatar, IconButton, Button } from 'react-native-paper';
+import { Appbar, Card, Text, ProgressBar, Avatar, IconButton } from 'react-native-paper';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -45,29 +45,34 @@ const AttendanceScreen: React.FC = () => {
     totalStudents: 24,
   };
 
+  const today = new Date().toLocaleDateString('es-MX', {
+    day: 'numeric',
+    month: 'long',
+  });
+
   const attendanceRecords: AttendanceRecord[] = [
     {
       id: '1',
-      studentName: 'Sara Itzel García Vidal',
+      studentName: 'Carlos Pérez',
       accumulatedAbsences: 3,
       isPresent: true,
     },
     {
       id: '2',
-      studentName: 'Sara Itzel García Vidal',
+      studentName: 'María López',
       accumulatedAbsences: 4,
       isPresent: false,
     },
     {
       id: '3',
-      studentName: 'Sara Itzel García Vidal',
-      accumulatedAbsences: 4,
+      studentName: 'Luis Hernández',
+      accumulatedAbsences: 2,
       isPresent: true,
     },
     {
       id: '4',
-      studentName: 'Sara Itzel García Vidal',
-      accumulatedAbsences: 2,
+      studentName: 'Ana Ramírez',
+      accumulatedAbsences: 1,
       isPresent: false,
     },
   ];
@@ -77,7 +82,7 @@ const AttendanceScreen: React.FC = () => {
       await AsyncStorage.removeItem('accessToken');
       await AsyncStorage.removeItem('userName');
       await AsyncStorage.removeItem('userEmail');
-      navigation.navigate('index'); // Navegar a la pantalla de inicio o login
+      navigation.navigate('Login'); // Ensure this route exists
     } catch (error) {
       console.error('Error during logout:', error);
     }
@@ -113,8 +118,8 @@ const AttendanceScreen: React.FC = () => {
 
       {/* Attendance List Header */}
       <View style={styles.listHeader}>
-        <Text variant="titleMedium">Asistencias - Noviembre 05</Text>
-        <IconButton icon="magnify" size={24} onPress={() => {}} />
+        <Text variant="titleMedium">{`Asistencias - ${today}`}</Text>
+        <IconButton icon="magnify" size={24} onPress={() => console.log('Search pressed')} />
       </View>
 
       {/* Attendance List */}
@@ -122,10 +127,10 @@ const AttendanceScreen: React.FC = () => {
         {attendanceRecords.map((record) => (
           <Card key={record.id} style={styles.attendanceCard}>
             <Card.Content style={styles.attendanceContent}>
-              <Avatar.Text 
-                size={40} 
-                label={record.studentName.charAt(0)} 
-                style={record.isPresent ? styles.presentAvatar : styles.absentAvatar} 
+              <Avatar.Text
+                size={40}
+                label={record.studentName.charAt(0)}
+                style={record.isPresent ? styles.presentAvatar : styles.absentAvatar}
               />
               <View style={styles.attendanceDetails}>
                 <Text variant="bodyMedium">{record.studentName}</Text>
@@ -139,10 +144,10 @@ const AttendanceScreen: React.FC = () => {
                   {record.accumulatedAbsences}/{MAX_ABSENCES}
                 </Text>
               </View>
-              <IconButton 
-                icon={record.isPresent ? "check-circle" : "close-circle"} 
-                size={24} 
-                iconColor={record.isPresent ? '#4CAF50' : '#F44336'} 
+              <IconButton
+                icon={record.isPresent ? 'check-circle' : 'close-circle'}
+                size={24}
+                iconColor={record.isPresent ? '#4CAF50' : '#F44336'}
               />
             </Card.Content>
           </Card>
@@ -199,10 +204,6 @@ const styles = StyleSheet.create({
   },
   absentAvatar: {
     backgroundColor: '#F44336',
-  },
-  logoutButton: {
-    margin: 16,
-    borderRadius: 8,
   },
 });
 
