@@ -107,5 +107,6 @@ export const user = {
     }),
     studentID: text(),
     userInstitutions: relationship({ ref: 'UserInstitution.user', many: true }), // Esta relación debe apuntar correctamente
+    group: text(),
   },
 };

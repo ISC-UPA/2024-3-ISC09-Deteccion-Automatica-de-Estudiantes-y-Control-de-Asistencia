@@ -46,8 +46,9 @@ var user = {
       validation: { isRequired: true }
     }),
     studentID: (0, import_fields.text)(),
-    userInstitutions: (0, import_fields.relationship)({ ref: "UserInstitution.user", many: true })
+    userInstitutions: (0, import_fields.relationship)({ ref: "UserInstitution.user", many: true }),
     // Esta relación debe apuntar correctamente
+    group: (0, import_fields.text)({ validation: { isRequired: true } })
   }
 };
 
@@ -140,7 +141,8 @@ var classSchema = {
       // Referencia a la tabla User
       many: false,
       ui: { displayMode: "select" }
-    })
+    }),
+    room: (0, import_fields5.text)({ validation: { isRequired: true } })
   }
 };
 

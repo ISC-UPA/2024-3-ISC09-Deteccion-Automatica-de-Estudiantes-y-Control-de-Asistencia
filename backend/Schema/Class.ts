@@ -15,5 +15,6 @@ export const classSchema = {
             many: false,
             ui: { displayMode: 'select' },
         }),
+        room: text(),
     },
 };
