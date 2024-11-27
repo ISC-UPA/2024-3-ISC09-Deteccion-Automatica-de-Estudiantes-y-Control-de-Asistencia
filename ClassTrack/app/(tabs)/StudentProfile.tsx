@@ -113,6 +113,29 @@ const StudentProfile = () => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await axios.post(
+        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+        {
+          query: `
+            mutation DeleteUser($where: UserWhereUniqueInput!) {
+              deleteUser(where: $where) {
+                id
+                name
+              }
+            }
+          `,
+          variables: { where: { id: studentId } },
+        }
+      );
+      await AsyncStorage.clear(); // Limpiar los datos del usuario en AsyncStorage
+      router.push('/'); // Redirigir al login o página principal
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -154,6 +177,14 @@ const StudentProfile = () => {
       >
         Regresar
       </Button>
+      <Button
+        mode="contained"
+        onPress={handleDelete}
+        style={styles.deleteButton}
+        icon="delete"
+      >
+        Eliminar Cuenta
+      </Button>
     </View>
   );
 };
@@ -172,6 +203,7 @@ const styles = StyleSheet.create({
   absenceText: { fontSize: 14, color: '#757575', flexShrink: 0 },
   criticalText: { color: '#F44336' },
   backButton: { margin: 16, borderRadius: 8 },
+  deleteButton: { margin: 16, borderRadius: 8, backgroundColor: '#F44336' }, // Estilo para el botón de eliminación
 });
 
 export default StudentProfile;
