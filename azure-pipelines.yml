@@ -1,5 +1,5 @@
 trigger:
-- feature/Docker
+- azure-pipeline2
 
 resources:
 - repo: self
