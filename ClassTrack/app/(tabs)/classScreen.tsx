@@ -41,8 +41,8 @@ const GET_ATTENDANCES = gql`
 `;
 
 const DELETE_CLASS = gql`
-  mutation DeleteClass($where: ClassWhereUniqueInput!) {
-    deleteClass(where: $where) {
+  mutation DeleteClass($id: ID!) {
+    deleteClass(where: { id: $id }) {
       id
       name
     }
@@ -64,15 +64,18 @@ const ClassScreen: React.FC = () => {
 
   const [deleteClass] = useMutation(DELETE_CLASS, {
     onCompleted: () => {
+      console.log('Clase eliminada con éxito.');
       Alert.alert('Éxito', 'La clase ha sido eliminada.');
       navigation.goBack(); // Regresa a la pantalla anterior después de eliminar
     },
     onError: (error) => {
+      console.log('Error eliminando clase:', error);
       Alert.alert('Error', error.message);
     },
   });
 
   const handleDeleteClass = () => {
+    console.log('Intentando eliminar clase con ID:', id);
     Alert.alert(
       'Confirmar eliminación',
       '¿Estás seguro de que deseas eliminar esta clase?',
@@ -82,7 +85,8 @@ const ClassScreen: React.FC = () => {
           text: 'Eliminar',
           style: 'destructive',
           onPress: () => {
-            deleteClass({ variables: { where: { id } } });
+            console.log('Eliminando clase...');
+            deleteClass({ variables: { id } });
           },
         },
       ]
@@ -99,6 +103,7 @@ const ClassScreen: React.FC = () => {
   }
 
   if (classError || attendanceError) {
+    console.log('Error cargando datos:', classError || attendanceError);
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>
