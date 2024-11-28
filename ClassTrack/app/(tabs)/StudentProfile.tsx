@@ -18,8 +18,8 @@ const StudentProfile = () => {
   const [absenceData, setAbsenceData] = useState<AbsenceData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [editMode, setEditMode] = useState(false); // For toggling edit mode
-  const [updatedData, setUpdatedData] = useState(studentData); // For storing updated values
+  const [editMode, setEditMode] = useState(false);
+  const [updatedData, setUpdatedData] = useState(studentData);
 
   useEffect(() => {
     const fetchStudentData = async () => {
@@ -90,7 +90,7 @@ const StudentProfile = () => {
       await AsyncStorage.removeItem('accessToken');
       await AsyncStorage.removeItem('userName');
       await AsyncStorage.removeItem('userEmail');
-      router.push('/'); // Redirige al login o pantalla principal
+      router.push('/');
     } catch (error) {
       console.error('Error durante el cierre de sesión:', error);
     }
@@ -165,10 +165,10 @@ const StudentProfile = () => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Perfil del Estudiante" />
-        <Appbar.Action icon="logout" onPress={handleLogout} />
+      <Appbar.Header style={styles.appbarHeader}>
+        <Appbar.BackAction color="white" onPress={() => router.back()} />
+        <Appbar.Content title="Perfil del Estudiante" titleStyle={styles.appbarTitle} />
+        <Appbar.Action icon="logout" color="white" onPress={handleLogout} />
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Card style={styles.profileCard}>
@@ -203,9 +203,9 @@ const StudentProfile = () => {
                 </>
               ) : (
                 <>
-                  <Title>{studentData.name}</Title>
-                  <Paragraph>ID: {studentData.studentID}</Paragraph>
-                  <Paragraph>Email: {studentData.email}</Paragraph>
+                  <Title style={styles.profileTitle}>{studentData.name}</Title>
+                  <Paragraph style={styles.profileParagraph}>ID: {studentData.studentID}</Paragraph>
+                  <Paragraph style={styles.profileParagraph}>Email: {studentData.email}</Paragraph>
                   <Button mode="text" onPress={() => setEditMode(true)}>
                     Editar Información
                   </Button>
@@ -221,6 +221,7 @@ const StudentProfile = () => {
         onPress={() => router.back()}
         style={styles.backButton}
         icon="arrow-left"
+        labelStyle={styles.backButtonLabel}
       >
         Regresar
       </Button>
@@ -229,19 +230,54 @@ const StudentProfile = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
+  container: { 
+    flex: 1, 
+    backgroundColor: 'rgba(30, 58, 99, 0.1)' // Very faint background color
+  },
   scrollContent: { padding: 16, paddingBottom: 80 },
+  appbarHeader: {
+    backgroundColor: '#1e3a63' // Top bar color
+  },
+  appbarTitle: {
+    color: 'white' // White text for app bar title
+  },
   profileCard: { marginBottom: 16, elevation: 2 },
   profileContent: { flexDirection: 'row', alignItems: 'center' },
   profileImage: { width: 60, height: 60, borderRadius: 30, marginRight: 16 },
-  profileInfo: { flex: 1 },
+  profileInfo: { 
+    flex: 1
+  },
+  profileTitle: {
+    color: '#1e3a63',
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+  profileParagraph: {
+    color: '#1e3a63'
+  },
   card: { marginBottom: 16, elevation: 2 },
   subjectRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  subjectTitle: { fontSize: 16, fontWeight: '600', flex: 1, marginRight: 8 },
+  subjectTitle: { 
+    fontSize: 16, 
+    fontWeight: '600', 
+    flex: 1, 
+    marginRight: 8,
+    color: '#1e3a63' // Change subject title color
+  },
   progressBar: { height: 8, borderRadius: 4 },
-  absenceText: { fontSize: 14, color: '#757575', flexShrink: 0 },
+  absenceText: { 
+    fontSize: 14, 
+    color: '#1e3a63' // Change absence text color
+  },
   criticalText: { color: '#F44336' },
-  backButton: { margin: 16, borderRadius: 8 },
+  backButton: { 
+    margin: 16, 
+    borderRadius: 8,
+    backgroundColor: '#1e3a63' // Back button color
+  },
+  backButtonLabel: {
+    color: 'white' // White text for back button
+  }
 });
 
 export default StudentProfile;
