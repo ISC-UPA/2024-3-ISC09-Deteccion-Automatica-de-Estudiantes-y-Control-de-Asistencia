@@ -95,7 +95,6 @@ export const user = {
       validation: { isRequired: true },
       isIndexed: 'unique',
     }),
-    password: password({ validation: { isRequired: true } }),
     role: select({
       options: [
         { label: 'Estudiante', value: 'student' },

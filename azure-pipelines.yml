@@ -7,7 +7,7 @@ resources:
 pool:
   name: 'Default'
   demands:
-  - agent.name -equals agentclass
+  - agent.name -equals agentclass2
 
 variables:
   tag: '$(Build.BuildId)'
@@ -25,18 +25,18 @@ stages:
         containerRegistry: 'classtrackapi'
         command: 'build'
         Dockerfile: '**/backend/Dockerfile'
-        arguments: '-t classtrackapi.azurecr.io/classtrack-api:latest'
+        arguments: '-t classtrackapi.azurecr.io/classtrack-api:back2'
     - task: Docker@2
       displayName: Push Docker image
       inputs:
         containerRegistry: 'classtrackapi'
         command: 'push'
         repository: 'classtrack-api'
-        tags: 'latest'
+        tags: 'back2'
     - task: AzureWebAppContainer@1
       displayName: Deploy Docker image to Azure Web App
       inputs:
         azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
-        appName: 'ClassTrack-API-Alumnos'
-        containers: 'classtrackapi.azurecr.io/classtrack-api:latest'
+        appName: 'ClassTrack-API-Alumnos2'
+        containers: 'classtrackapi.azurecr.io/classtrack-api:back2'
         appSettings: '-Port 3000'
