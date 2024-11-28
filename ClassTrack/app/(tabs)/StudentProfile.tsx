@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Image, View } from 'react-native';
-import { Card, Title, Paragraph, ProgressBar, Text, Button, Appbar } from 'react-native-paper';
+import { Card, Title, Paragraph, ProgressBar, Text, Button, Appbar, TextInput } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import axios from 'axios';
 
 interface AbsenceData {
   subject: string;
-  count: number; // Cantidad de veces que aparece la materia
+  count: number;
 }
 
 const StudentProfile = () => {
   const router = useRouter();
-  const { studentId } = useLocalSearchParams(); // Obtener el studentId desde la navegación
+  const { studentId } = useLocalSearchParams();
 
   const [studentData, setStudentData] = useState({ name: '', studentID: '', email: '' });
   const [absenceData, setAbsenceData] = useState<AbsenceData[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [editMode, setEditMode] = useState(false); // For toggling edit mode
+  const [updatedData, setUpdatedData] = useState(studentData); // For storing updated values
 
   useEffect(() => {
     const fetchStudentData = async () => {
@@ -37,6 +40,7 @@ const StudentProfile = () => {
           }
         );
         setStudentData(studentResponse.data.data.users[0]);
+        setUpdatedData(studentResponse.data.data.users[0]);
 
         const absenceResponse = await axios.post(
           'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
@@ -81,9 +85,58 @@ const StudentProfile = () => {
     if (studentId) fetchStudentData();
   }, [studentId]);
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('accessToken');
+      await AsyncStorage.removeItem('userName');
+      await AsyncStorage.removeItem('userEmail');
+      router.push('/'); // Redirige al login o pantalla principal
+    } catch (error) {
+      console.error('Error durante el cierre de sesión:', error);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const response = await axios.post(
+        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+        {
+          query: `
+            mutation UpdateUser($where: UserWhereUniqueInput!, $data: UserUpdateInput!) {
+              updateUser(where: $where, data: $data) {
+                name
+                studentID
+                email
+              }
+            }
+          `,
+          variables: {
+            where: { id: studentId },
+            data: {
+              name: updatedData.name,
+              studentID: updatedData.studentID,
+              email: updatedData.email,
+            },
+          },
+        }
+      );
+
+      if (response.data.data.updateUser) {
+        setStudentData(response.data.data.updateUser);
+        setEditMode(false);
+        alert('Datos actualizados correctamente.');
+      } else {
+        alert('Error al actualizar los datos.');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('Hubo un error al intentar actualizar los datos.');
+    }
+  };
+
   const renderAbsenceBar = (subject: string, count: number) => {
-    const progress = count / 10; // Puedes ajustar el valor máximo (10) según lo que consideres
-    const isCritical = count >= 10; // Define cuándo es crítico
+    const progress = count / 10;
+    const isCritical = count >= 10;
 
     return (
       <Card style={styles.card} key={subject}>
@@ -100,40 +153,6 @@ const StudentProfile = () => {
         </Card.Content>
       </Card>
     );
-  };
-
-  const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem('accessToken');
-      await AsyncStorage.removeItem('userName');
-      await AsyncStorage.removeItem('userEmail');
-      router.push('/'); // Navegar a la pantalla de inicio o login
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
-  };
-
-  const handleDelete = async () => {
-    try {
-      await axios.post(
-        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
-        {
-          query: `
-            mutation DeleteUser($where: UserWhereUniqueInput!) {
-              deleteUser(where: $where) {
-                id
-                name
-              }
-            }
-          `,
-          variables: { where: { id: studentId } },
-        }
-      );
-      await AsyncStorage.clear(); // Limpiar los datos del usuario en AsyncStorage
-      router.push('/StudentsScreen'); // Redirigir al login o página principal
-    } catch (error) {
-      console.error('Error deleting user:', error);
-    }
   };
 
   if (loading) {
@@ -161,9 +180,37 @@ const StudentProfile = () => {
               style={styles.profileImage}
             />
             <View style={styles.profileInfo}>
-              <Title>{studentData.name}</Title>
-              <Paragraph>ID: {studentData.studentID}</Paragraph>
-              <Paragraph>Email: {studentData.email}</Paragraph>
+              {editMode ? (
+                <>
+                  <TextInput
+                    label="Nombre"
+                    value={updatedData.name}
+                    onChangeText={(text) => setUpdatedData({ ...updatedData, name: text })}
+                  />
+                  <TextInput
+                    label="ID"
+                    value={updatedData.studentID}
+                    onChangeText={(text) => setUpdatedData({ ...updatedData, studentID: text })}
+                  />
+                  <TextInput
+                    label="Email"
+                    value={updatedData.email}
+                    onChangeText={(text) => setUpdatedData({ ...updatedData, email: text })}
+                  />
+                  <Button mode="contained" onPress={handleUpdate}>
+                    Guardar Cambios
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Title>{studentData.name}</Title>
+                  <Paragraph>ID: {studentData.studentID}</Paragraph>
+                  <Paragraph>Email: {studentData.email}</Paragraph>
+                  <Button mode="text" onPress={() => setEditMode(true)}>
+                    Editar Información
+                  </Button>
+                </>
+              )}
             </View>
           </Card.Content>
         </Card>
@@ -176,14 +223,6 @@ const StudentProfile = () => {
         icon="arrow-left"
       >
         Regresar
-      </Button>
-      <Button
-        mode="contained"
-        onPress={handleDelete}
-        style={styles.deleteButton}
-        icon="delete"
-      >
-        Eliminar Cuenta
       </Button>
     </View>
   );
@@ -203,7 +242,6 @@ const styles = StyleSheet.create({
   absenceText: { fontSize: 14, color: '#757575', flexShrink: 0 },
   criticalText: { color: '#F44336' },
   backButton: { margin: 16, borderRadius: 8 },
-  deleteButton: { margin: 16, borderRadius: 8, backgroundColor: '#F44336' }, // Estilo para el botón de eliminación
 });
 
 export default StudentProfile;
