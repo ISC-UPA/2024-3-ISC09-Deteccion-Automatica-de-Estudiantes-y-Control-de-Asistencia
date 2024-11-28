@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, TextInput, Button, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import RNPickerSelect from 'react-native-picker-select';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -113,6 +112,12 @@ const TeachersScreen: React.FC = () => {
     }
   };
 
+  const toggleSortOption = () => {
+    setSortOption(prevOption => 
+      prevOption === 'name' ? 'studentID' : 'name'
+    );
+  };
+
   const sortData = () => {
     if (sortOption === 'name') {
       return [...teachers].sort((a, b) => a.name.localeCompare(b.name));
@@ -134,24 +139,31 @@ const TeachersScreen: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Teacher List</Text>
-        <RNPickerSelect
-          onValueChange={(value) => setSortOption(value)}
-          items={[
-            { label: 'Name', value: 'name' },
-            { label: 'ID', value: 'studentID' },
+        <TouchableOpacity 
+          style={[
+            styles.sortButton,
+            sortOption === 'studentID' && styles.activeSortButton
           ]}
-          style={pickerSelectStyles}
-          value={sortOption}
-          placeholder={{ label: 'Sort by...', value: null }}
-          useNativeAndroidPickerStyle={false}
-        />
+          onPress={toggleSortOption}
+        >
+          <FontAwesome 
+            name="sort-alpha-asc" 
+            size={20} 
+            color={sortOption === 'studentID' ? '#fff' : '#4A90E0'} 
+          />
+        </TouchableOpacity>
       </View>
       <FlatList
         contentContainerStyle={styles.listContainer}
         data={sortData()}
-        keyExtractor={(item) => item.id} // Use the correct `id` for keyExtractor
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TeacherCard id={item.id} name={item.name} studentID={item.studentID} email={item.email} />
+          <TeacherCard 
+            id={item.id} 
+            name={item.name} 
+            studentID={item.studentID} 
+            email={item.email} 
+          />
         )}
       />
       <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
@@ -203,7 +215,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#6200EE',
+    backgroundColor: '#1e3a63',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
@@ -211,6 +223,19 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#fff',
+  },
+  sortButton: {
+    padding: 8,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  activeSortButton: {
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   teacherCard: {
     flexDirection: 'row',
@@ -246,7 +271,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   addButton: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#1e3a63',
     padding: 16,
     margin: 16,
     borderRadius: 8,
@@ -268,31 +293,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
-  },
-});
-
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    color: '#000',
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
-  },
-  inputAndroid: {
-    fontSize: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    color: '#000',
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
   },
 });
 

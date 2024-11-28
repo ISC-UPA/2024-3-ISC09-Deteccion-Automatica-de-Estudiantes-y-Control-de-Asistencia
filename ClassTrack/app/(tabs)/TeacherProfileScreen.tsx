@@ -159,9 +159,9 @@ const TeacherProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
+      <Appbar.Header style={styles.appbar}>
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Perfil del Docente" />
+        <Appbar.Content title="Perfil del Docente" titleStyle={styles.appbarTitle} />
         <Appbar.Action icon="logout" onPress={handleLogout} />
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -197,9 +197,9 @@ const TeacherProfileScreen = () => {
                 </>
               ) : (
                 <>
-                  <Title>{teacherData.name}</Title>
-                  <Paragraph>ID: {teacherData.studentID}</Paragraph>
-                  <Paragraph>Email: {teacherData.email}</Paragraph>
+                  <Title style={styles.profileTitle}>{teacherData.name}</Title>
+                  <Paragraph style={styles.profileText}>ID: {teacherData.studentID}</Paragraph>
+                  <Paragraph style={styles.profileText}>Email: {teacherData.email}</Paragraph>
                   <Button mode="text" onPress={() => setEditMode(true)}>
                     Editar Información
                   </Button>
@@ -225,8 +225,8 @@ const TeacherProfileScreen = () => {
             }
           >
             <Card.Content>
-              <Title>{classItem.name}</Title>
-              <Paragraph>{classItem.description}</Paragraph>
+              <Title style={styles.classTitle}>{classItem.name}</Title>
+              <Paragraph style={styles.classText}>{classItem.description}</Paragraph>
               <Text style={styles.classSchedule}>Horario: {classItem.schedule}</Text>
             </Card.Content>
           </Card>
@@ -240,13 +240,36 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
   scrollContent: { padding: 16, paddingBottom: 80 },
   profileCard: { marginBottom: 16, elevation: 2 },
-  profileContent: { flexDirection: 'row', alignItems: 'center' },
+  profileContent: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(30, 58, 99, 0.2' },
   profileImage: { width: 60, height: 60, borderRadius: 30, marginRight: 16 },
   profileInfo: { flex: 1 },
+  profileTitle: {
+    color: '#1e3a63', // Tono más oscuro de azul
+    fontWeight: 'bold', // Negritas en el título
+  },
+  profileText: {
+    color: '#1e3a63', // Azul claro
+  },
   errorText: { color: 'red', fontSize: 16, textAlign: 'center', marginTop: 20 },
-  classesTitle: { fontSize: 20, marginVertical: 16, marginLeft: 16 },
+  classesTitle: {
+    fontSize: 20,
+    marginVertical: 16,
+    marginLeft: 16,
+    fontWeight: 'bold', // Negritas en el título de clases
+  },
   classCard: { marginBottom: 16, marginHorizontal: 16, elevation: 2 },
+  classTitle: {
+    color: '#1e3a63', // Azul claro para el título de clase
+    fontWeight: 'bold', // Negritas en el título de clase
+  },
+  classText: {
+    color: '#1e3a63', // Azul claro para el texto dentro de las clases
+  },
   classSchedule: { marginTop: 8, color: '#555' },
+  appbar: { backgroundColor: '#1e3a63' },
+  appbarTitle: {
+    color: 'white', // Título de la barra de navegación en blanco
+  },
 });
 
 export default TeacherProfileScreen;
