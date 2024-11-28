@@ -51,16 +51,25 @@ const CREATE_CLASS = gql`
 const ClassCard: React.FC<{ classData: any; onPress: (classData: any) => void }> = ({
   classData,
   onPress,
-}) => (
-  <TouchableOpacity style={styles.classCard} onPress={() => onPress(classData)}>
-    <View style={styles.classInfo}>
-      <Text style={styles.classSubject}>{classData.name}</Text>
-      <Text style={styles.classDetails}>{classData.schedule}</Text>
-      <Text style={styles.classDetails}>{classData.description}</Text>
-    </View>
-    <FontAwesome name="chevron-right" size={20} color="#666" />
-  </TouchableOpacity>
-);
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <TouchableOpacity
+      style={[styles.classCard, isHovered && styles.classCardHovered]}
+      onPressIn={() => setIsHovered(true)} // Simulando el hover al presionar
+      onPressOut={() => setIsHovered(false)} // Restaurando el estado cuando se deja de presionar
+      onPress={() => onPress(classData)}
+    >
+      <View style={styles.classInfo}>
+        <Text style={styles.classSubject}>{classData.name}</Text>
+        <Text style={styles.classDetails}>{classData.schedule}</Text>
+        <Text style={styles.classDetails}>{classData.description}</Text>
+      </View>
+      <FontAwesome name="chevron-right" size={20} color="#666" />
+    </TouchableOpacity>
+  );
+};
 
 const ClassesScreen: React.FC = () => {
   const router = useRouter();
@@ -193,7 +202,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#6200EE',
+    backgroundColor: '#1e3a63',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
@@ -203,12 +212,17 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   addButton: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#1e3a63',
     borderRadius: 8,
     padding: 10,
   },
   addButtonText: { color: '#fff', fontWeight: '600' },
-  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
   modalContent: {
     backgroundColor: '#fff',
     padding: 20,
@@ -258,6 +272,13 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  classCardHovered: {
+    shadowColor: '#4A90E0', // Sombra con color azul con transparencia
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1, // Transparencia ajustada a 0.2
+    shadowRadius: 10,
+    elevation: 5, // Agregar elevación para dispositivos Android
+  },
 });
 
 const pickerSelectStyles = StyleSheet.create({
@@ -268,20 +289,18 @@ const pickerSelectStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
-    color: '#000',
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
+    color: 'black',
+    paddingRight: 30, // Necesario para icono de selector
   },
   inputAndroid: {
     fontSize: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     paddingHorizontal: 10,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
-    color: '#000',
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
+    color: 'black',
+    paddingRight: 30, // Necesario para icono de selector
   },
 });
 

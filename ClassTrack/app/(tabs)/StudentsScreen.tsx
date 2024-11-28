@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#6200EE',
+    backgroundColor: '#1e3a63',
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
   },
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   addButton: {
-    backgroundColor: '#6200EE',
+    backgroundColor: '#1e3a63',
     padding: 16,
     margin: 16,
     borderRadius: 8,

@@ -1,17 +1,16 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: '#FFFFFF', // Color de íconos activos
+        tabBarInactiveTintColor: '#B0C4DE', // Color de íconos inactivos
+        tabBarStyle: {
+          backgroundColor: '#1e3a63', // Color de fondo de la barra
+        },
         headerShown: false,
       }}
     >
