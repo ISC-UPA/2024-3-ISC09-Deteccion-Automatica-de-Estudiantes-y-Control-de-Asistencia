@@ -49,6 +49,7 @@ const StudentsScreen: React.FC = () => {
     email: '',
     password: '',
   });
+  const [isSorted, setIsSorted] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -122,12 +123,11 @@ const StudentsScreen: React.FC = () => {
   };
 
   const sortData = () => {
-    if (sortOption === 'name') {
+    if (isSorted) {
       return [...students].sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortOption === 'studentID') {
-      return [...students].sort((a, b) => a.studentID.localeCompare(b.studentID));
+    } else {
+      return students;
     }
-    return students;
   };
 
   if (loading) {
@@ -142,17 +142,13 @@ const StudentsScreen: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Student List</Text>
-        <RNPickerSelect
-          onValueChange={(value) => setSortOption(value)}
-          items={[
-            { label: 'Name', value: 'name' },
-            { label: 'ID', value: 'studentID' },
-          ]}
-          style={pickerSelectStyles}
-          value={sortOption}
-          placeholder={{ label: 'Sort by...', value: null }}
-          useNativeAndroidPickerStyle={false}
-        />
+        <TouchableOpacity onPress={() => setIsSorted(!isSorted)}>
+          <FontAwesome
+            name={isSorted ? 'sort-alpha-asc' : 'sort'}
+            size={20}
+            color="#fff"
+          />
+        </TouchableOpacity>
       </View>
       <FlatList
         contentContainerStyle={styles.listContainer}

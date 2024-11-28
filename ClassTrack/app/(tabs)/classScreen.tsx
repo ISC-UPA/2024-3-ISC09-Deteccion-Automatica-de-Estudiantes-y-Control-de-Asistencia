@@ -3,7 +3,6 @@ import { ScrollView, StyleSheet, View, Alert } from 'react-native';
 import { Appbar, Card, Text, ActivityIndicator, ProgressBar, Button } from 'react-native-paper';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { router } from 'expo-router';
 
 type RootStackParamList = {
   ClassScreen: {
@@ -66,7 +65,7 @@ const ClassScreen: React.FC = () => {
   const [deleteClass] = useMutation(DELETE_CLASS, {
     onCompleted: () => {
       Alert.alert('Éxito', 'La clase ha sido eliminada.');
-      navigation.goBack();
+      navigation.goBack(); // Regresa a la pantalla anterior después de eliminar
     },
     onError: (error) => {
       Alert.alert('Error', error.message);
@@ -93,7 +92,7 @@ const ClassScreen: React.FC = () => {
   if (classLoading || attendanceLoading) {
     return (
       <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#1e3a63" />
+        <ActivityIndicator size="large" color="#6200EE" />
         <Text style={styles.loaderText}>Cargando información...</Text>
       </View>
     );
@@ -113,7 +112,7 @@ const ClassScreen: React.FC = () => {
   const attendances = attendanceData?.attendances || [];
 
   const renderAttendanceBar = (user: string, count: number) => {
-    const progress = count / 10;
+    const progress = count / 10; // Ajustar según el máximo deseado
     const isCritical = count >= 10;
 
     return (
@@ -127,7 +126,7 @@ const ClassScreen: React.FC = () => {
           </View>
           <ProgressBar
             progress={progress}
-            color={isCritical ? '#F44336' : '#3dcc35'}
+            color={isCritical ? '#F44336' : '#6200EE'}
             style={styles.progressBar}
           />
         </Card.Content>
@@ -144,18 +143,18 @@ const ClassScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* Appbar */}
-      <Appbar.Header style={styles.appbarHeader}>
-      <Appbar.BackAction color="white" onPress={() => router.push('/(tabs)/TeacherClassesScreen')} />
-        <Appbar.Content title={classInfo?.name || 'Clase'} titleStyle={styles.appbarTitle} />
+      <Appbar.Header>
+        <Appbar.BackAction onPress={() => navigation.goBack()} />
+        <Appbar.Content title={classInfo?.name || 'Clase'} />
       </Appbar.Header>
 
       {/* Class Information */}
       <Card style={styles.courseInfoCard}>
         <Card.Content>
-          <Text variant="bodyMedium" style={styles.infoText}>Nombre: {classInfo?.name || 'No disponible'}</Text>
-          <Text variant="bodyMedium" style={styles.infoText}>Horario: {classInfo?.schedule || 'No disponible'}</Text>
-          <Text variant="bodyMedium" style={styles.infoText}>Descripción: {classInfo?.description || 'No disponible'}</Text>
-          <Text variant="bodyMedium" style={styles.infoText}>Docente: {classInfo?.teacher?.name || 'No asignado'}</Text>
+          <Text variant="bodyMedium">Nombre: {classInfo?.name || 'No disponible'}</Text>
+          <Text variant="bodyMedium">Horario: {classInfo?.schedule || 'No disponible'}</Text>
+          <Text variant="bodyMedium">Descripción: {classInfo?.description || 'No disponible'}</Text>
+          <Text variant="bodyMedium">Docente: {classInfo?.teacher?.name || 'No asignado'}</Text>
         </Card.Content>
       </Card>
 
@@ -180,30 +179,22 @@ const ClassScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'rgba(30, 58, 99, 0.1)', // Transparent version of #1e3a63
-  },
-  appbarHeader: {
-    backgroundColor: '#1e3a63', // Top bar color
-  },
-  appbarTitle: {
-    color: 'white', // White text for app bar title
+    backgroundColor: '#F9FAFB',
   },
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(30, 58, 99, 0.1)',
   },
   loaderText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#1e3a63',
+    color: '#6200EE',
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(30, 58, 99, 0.1)',
   },
   errorText: {
     color: '#F44336',
@@ -212,9 +203,6 @@ const styles = StyleSheet.create({
   courseInfoCard: {
     margin: 16,
     borderRadius: 8,
-  },
-  infoText: {
-    color: '#1e3a63', // Adding color to match the theme
   },
   attendanceCard: {
     margin: 16,
@@ -229,11 +217,10 @@ const styles = StyleSheet.create({
   attendanceName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1e3a63',
   },
   attendanceCount: {
     fontSize: 14,
-    color: '#1e3a63',
+    color: '#757575',
   },
   criticalText: {
     color: '#F44336',
@@ -245,7 +232,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     margin: 16,
     borderRadius: 8,
-    backgroundColor: '#1e3a63',
+    backgroundColor: '#F44336',
   },
 });
 

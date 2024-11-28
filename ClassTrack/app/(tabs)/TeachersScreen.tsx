@@ -50,6 +50,7 @@ const TeachersScreen: React.FC = () => {
     email: '',
     password: '',
   });
+  const [isSorted, setIsSorted] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchTeachers = async () => {
@@ -112,19 +113,12 @@ const TeachersScreen: React.FC = () => {
     }
   };
 
-  const toggleSortOption = () => {
-    setSortOption(prevOption => 
-      prevOption === 'name' ? 'studentID' : 'name'
-    );
-  };
-
   const sortData = () => {
-    if (sortOption === 'name') {
+    if (isSorted) {
       return [...teachers].sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortOption === 'studentID') {
-      return [...teachers].sort((a, b) => a.studentID.localeCompare(b.studentID));
+    } else {
+      return teachers;
     }
-    return teachers;
   };
 
   if (loading) {
@@ -139,17 +133,11 @@ const TeachersScreen: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Teacher List</Text>
-        <TouchableOpacity 
-          style={[
-            styles.sortButton,
-            sortOption === 'studentID' && styles.activeSortButton
-          ]}
-          onPress={toggleSortOption}
-        >
-          <FontAwesome 
-            name="sort-alpha-asc" 
-            size={20} 
-            color={sortOption === 'studentID' ? '#fff' : '#4A90E0'} 
+        <TouchableOpacity onPress={() => setIsSorted(!isSorted)}>
+          <FontAwesome
+            name={isSorted ? 'sort-alpha-asc' : 'sort'}
+            size={20}
+            color="#fff"
           />
         </TouchableOpacity>
       </View>
@@ -158,11 +146,11 @@ const TeachersScreen: React.FC = () => {
         data={sortData()}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TeacherCard 
-            id={item.id} 
-            name={item.name} 
-            studentID={item.studentID} 
-            email={item.email} 
+          <TeacherCard
+            id={item.id}
+            name={item.name}
+            studentID={item.studentID}
+            email={item.email}
           />
         )}
       />
@@ -223,19 +211,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#fff',
-  },
-  sortButton: {
-    padding: 8,
-    borderRadius: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  activeSortButton: {
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
   },
   teacherCard: {
     flexDirection: 'row',
