@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View, Alert } from 'react-native';
 import { Appbar, Card, Text, ActivityIndicator, ProgressBar, Button } from 'react-native-paper';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { router } from 'expo-router';
 
 type RootStackParamList = {
   ClassScreen: {
@@ -143,9 +144,12 @@ const ClassScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* Appbar */}
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={classInfo?.name || 'Clase'} />
+      <Appbar.Header style={styles.appbar}>
+        <Appbar.BackAction color="white" onPress={() => router.push('/(tabs)/TeacherClassesScreen')} />
+        <Appbar.Content 
+          title={classInfo?.name || 'Clase'} 
+          titleStyle={styles.appbarTitle} // Agrega esta línea
+        />
       </Appbar.Header>
 
       {/* Class Information */}
@@ -179,7 +183,13 @@ const ClassScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: 'rgba(30, 58, 99, 0.1)'
+  },
+  appbar: {
+    backgroundColor: '#1e3a63', // New color for the top bar
+  },
+  appbarTitle: {
+    color: 'white', // Añade este estilo para el color del texto
   },
   loaderContainer: {
     flex: 1,
@@ -207,6 +217,7 @@ const styles = StyleSheet.create({
   attendanceCard: {
     margin: 16,
     borderRadius: 8,
+    color: '#1e3a63'
   },
   attendanceRow: {
     flexDirection: 'row',
@@ -217,6 +228,7 @@ const styles = StyleSheet.create({
   attendanceName: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#1e3a63'
   },
   attendanceCount: {
     fontSize: 14,
@@ -232,7 +244,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     margin: 16,
     borderRadius: 8,
-    backgroundColor: '#F44336',
+    backgroundColor: '#1e3a63',
   },
 });
 
