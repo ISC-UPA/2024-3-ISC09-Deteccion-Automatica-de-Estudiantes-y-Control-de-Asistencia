@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View, Alert } from 'react-native';
 import { Appbar, Card, Text, ActivityIndicator, ProgressBar, Button } from 'react-native-paper';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { router } from 'expo-router';
 
 type RootStackParamList = {
   ClassScreen: {
@@ -144,7 +145,7 @@ const ClassScreen: React.FC = () => {
     <View style={styles.container}>
       {/* Appbar */}
       <Appbar.Header style={styles.appbarHeader}>
-        <Appbar.BackAction color="white" onPress={() => navigation.goBack()} />
+      <Appbar.BackAction color="white" onPress={() => router.push('/(tabs)/TeacherClassesScreen')} />
         <Appbar.Content title={classInfo?.name || 'Clase'} titleStyle={styles.appbarTitle} />
       </Appbar.Header>
 

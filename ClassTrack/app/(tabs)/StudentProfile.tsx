@@ -166,7 +166,7 @@ const StudentProfile = () => {
   return (
     <View style={styles.container}>
       <Appbar.Header style={styles.appbarHeader}>
-        <Appbar.BackAction color="white" onPress={() => router.back()} />
+      <Appbar.BackAction color="white" onPress={() => router.push('/(tabs)/StudentsScreen')} />
         <Appbar.Content title="Perfil del Estudiante" titleStyle={styles.appbarTitle} />
         <Appbar.Action icon="logout" color="white" onPress={handleLogout} />
       </Appbar.Header>

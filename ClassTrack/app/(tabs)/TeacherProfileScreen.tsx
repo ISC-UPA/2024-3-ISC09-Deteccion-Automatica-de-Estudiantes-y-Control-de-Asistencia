@@ -160,7 +160,7 @@ const TeacherProfileScreen = () => {
   return (
     <View style={styles.container}>
       <Appbar.Header style={styles.appbar}>
-        <Appbar.BackAction onPress={() => router.back()} />
+      <Appbar.BackAction color="white" onPress={() => router.push('/(tabs)/TeachersScreen')} />
         <Appbar.Content title="Perfil del Docente" titleStyle={styles.appbarTitle} />
         <Appbar.Action icon="logout" onPress={handleLogout} />
       </Appbar.Header>
