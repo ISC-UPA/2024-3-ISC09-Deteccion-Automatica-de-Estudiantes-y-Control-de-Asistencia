@@ -27,7 +27,7 @@ stages:
         containerRegistry: 'classtrackapi'
         command: 'build'
         Dockerfile: '**/ClassTrack/Dockerfile'
-        arguments: '-t classtrackapi.azurecr.io/classtrack-front:$(tag)'
+        arguments: '-t classtrackapi.azurecr.io/classtrack-frontend:$(tag)'
 
     # Push Frontend Docker Image
     - task: Docker@2
@@ -35,7 +35,7 @@ stages:
       inputs:
         containerRegistry: 'classtrackapi'
         command: 'push'
-        repository: 'classtrackapi.azurecr.io/classtrack-front'
+        repository: 'classtrack-frontend'
         tags: $(tag)
 
     # Deploy Frontend Container
@@ -44,4 +44,4 @@ stages:
       inputs:
         azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
         appName: 'ClassTrack-Frontend'
-        containers: classtrackapi.azurecr.io/classtrack-front:$(tag)
+        containers: classtrackapi.azurecr.io/classtrack-frontend:$(tag)
