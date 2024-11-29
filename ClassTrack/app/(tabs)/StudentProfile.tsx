@@ -134,6 +134,29 @@ const StudentProfile = () => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await axios.post(
+        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+        {
+          query: `
+            mutation DeleteUser($where: UserWhereUniqueInput!) {
+              deleteUser(where: $where) {
+                id
+                name
+              }
+            }
+          `,
+          variables: { where: { id: studentId } },
+        }
+      );
+      await AsyncStorage.clear(); // Limpiar los datos del usuario en AsyncStorage
+      router.push('/StudentsScreen'); // Redirigir al login o página principal
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    }
+  };
+
   const renderAbsenceBar = (subject: string, count: number) => {
     const progress = count / 10;
     const isCritical = count >= 10;
@@ -224,6 +247,14 @@ const StudentProfile = () => {
       >
         Regresar
       </Button>
+      <Button
+        mode="contained"
+        onPress={handleDelete}
+        style={styles.deleteButton}
+        icon="delete"
+      >
+        Eliminar Cuenta
+      </Button>
     </View>
   );
 };
@@ -237,11 +268,12 @@ const styles = StyleSheet.create({
   profileInfo: { flex: 1 },
   card: { marginBottom: 16, elevation: 2 },
   subjectRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  subjectTitle: { fontSize: 16, fontWeight: '600', flex: 1, marginRight: 8 },
-  progressBar: { height: 8, borderRadius: 4 },
-  absenceText: { fontSize: 14, color: '#757575', flexShrink: 0 },
+  subjectTitle: { fontSize: 16, fontWeight: 'bold', flex: 1 },
+  absenceText: { fontSize: 14, color: '#6200EE' },
   criticalText: { color: '#F44336' },
-  backButton: { margin: 16, borderRadius: 8 },
+  progressBar: { height: 8, borderRadius: 4 },
+  backButton: { position: 'absolute', bottom: 80, right: 16 },
+  deleteButton: { position: 'absolute', bottom: 16, right: 16 },
 });
 
 export default StudentProfile;
