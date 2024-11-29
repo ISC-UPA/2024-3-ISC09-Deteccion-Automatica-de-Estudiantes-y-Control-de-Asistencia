@@ -112,9 +112,13 @@ const StudentsScreen: React.FC = () => {
       );
 
       const createdStudent = response.data.data.createUser;
-      setStudents([...students, createdStudent]);
-      Alert.alert('Success', 'Student created successfully!');
-      setModalVisible(false);
+      if (createdStudent) {
+        setStudents([...students, createdStudent]);
+        Alert.alert('Success', 'Student created successfully!');
+        setModalVisible(false);
+      } else {
+        throw new Error('Invalid response');
+      }
     } catch (error) {
       console.error('Error creating student:', error);
       Alert.alert('Error', 'Failed to create student. Please try again.');
