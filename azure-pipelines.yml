@@ -1,5 +1,5 @@
 trigger:
-- feat/rolesScreens
+- Develop
 
 resources:
 - repo: self
@@ -21,7 +21,7 @@ stages:
     displayName: Build and Push Docker Images
     steps:
     # Configure Docker socket
-    - script: |
+    - script: 
         echo "Setting up Docker socket"
         export DOCKER_HOST=$(dockerHost)
       displayName: Configure Docker Socket
@@ -76,8 +76,7 @@ stages:
       inputs:
         azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
         appName: 'ClassTrack-API-Alumnos2'
-        containers: |
-          classtrackapi.azurecr.io/classtrack-api:$(tag)
+        containers: classtrackapi.azurecr.io/classtrack-api:$(tag)
 
     # Deploy Frontend Container
     - task: AzureWebAppContainer@1
@@ -85,5 +84,4 @@ stages:
       inputs:
         azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
         appName: 'ClassTrack-Frontend'
-        containers: |
-          classtrackapi.azurecr.io/classtrack-front:$(tag)
+        containers: classtrackapi.azurecr.io/classtrack-front:$(tag)
