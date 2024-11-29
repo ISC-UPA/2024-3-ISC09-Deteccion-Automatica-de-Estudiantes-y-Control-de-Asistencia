@@ -40,6 +40,7 @@ const StudentCard: React.FC<Student> = ({ id, name, studentID, email }) => {
 
 const StudentsScreen: React.FC = () => {
   const [sortOption, setSortOption] = useState<'name' | 'studentID'>('name');
+  const [filterOption, setFilterOption] = useState<string>('');
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -126,12 +127,24 @@ const StudentsScreen: React.FC = () => {
   };
 
   const sortData = () => {
-    if (sortOption === 'name') {
-      return [...students].sort((a, b) => a.name.localeCompare(b.name));
-    } else if (sortOption === 'studentID') {
-      return [...students].sort((a, b) => a.studentID.localeCompare(b.studentID));
+    let filteredStudents = students;
+
+    // Filter students
+    if (filterOption) {
+      filteredStudents = filteredStudents.filter(student => 
+        student.name.toLowerCase().includes(filterOption.toLowerCase()) ||
+        student.studentID.toLowerCase().includes(filterOption.toLowerCase()) ||
+        student.email.toLowerCase().includes(filterOption.toLowerCase())
+      );
     }
-    return students;
+
+    // Sort filtered students
+    if (sortOption === 'name') {
+      return filteredStudents.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortOption === 'studentID') {
+      return filteredStudents.sort((a, b) => a.studentID.localeCompare(b.studentID));
+    }
+    return filteredStudents;
   };
 
   if (loading) {
@@ -146,18 +159,19 @@ const StudentsScreen: React.FC = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Student List</Text>
-        <RNPickerSelect
-          onValueChange={(value) => setSortOption(value)}
-          items={[
-            { label: 'Name', value: 'name' },
-            { label: 'ID', value: 'studentID' },
-          ]}
-          style={pickerSelectStyles}
-          value={sortOption}
-          placeholder={{ label: 'Sort by...', value: null }}
-          useNativeAndroidPickerStyle={false}
+        <View style={styles.headerActions}>
+        </View>
+      </View>
+      
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Filter students..."
+          value={filterOption}
+          onChangeText={setFilterOption}
         />
       </View>
+
       <FlatList
         contentContainerStyle={styles.listContainer}
         data={sortData()}
@@ -209,6 +223,7 @@ const StudentsScreen: React.FC = () => {
     </View>
   );
 };
+
 
 
 const styles = StyleSheet.create({
@@ -263,6 +278,23 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingBottom: 16,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#f8f9fa',
+  },
+  searchInput: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   addButton: {
     backgroundColor: '#1e3a63',
