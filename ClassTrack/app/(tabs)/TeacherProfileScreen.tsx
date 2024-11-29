@@ -141,6 +141,30 @@ const TeacherProfileScreen = () => {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await axios.post(
+        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+        {
+          query: `
+            mutation DeleteUser($where: UserWhereUniqueInput!) {
+              deleteUser(where: $where) {
+                id
+                name
+              }
+            }
+          `,
+          variables: { where: { id: teacherId } },
+        }
+      );
+      await AsyncStorage.clear(); // Clear the user data in AsyncStorage
+      router.push('/TeachersScreen'); // Redirect to teachers list or login
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Hubo un error al eliminar la cuenta.');
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -232,6 +256,22 @@ const TeacherProfileScreen = () => {
           </Card>
         ))}
       </ScrollView>
+      <Button
+        mode="contained"
+        onPress={() => router.back()}
+        style={styles.backButton}
+        icon="arrow-left"
+      >
+        Regresar
+      </Button>
+      <Button
+        mode="contained"
+        onPress={handleDelete}
+        style={styles.deleteButton}
+        icon="delete"
+      >
+        Eliminar Cuenta
+      </Button>
     </View>
   );
 };
@@ -247,29 +287,17 @@ const styles = StyleSheet.create({
     color: '#1e3a63', // Tono más oscuro de azul
     fontWeight: 'bold', // Negritas en el título
   },
-  profileText: {
-    color: '#1e3a63', // Azul claro
-  },
-  errorText: { color: 'red', fontSize: 16, textAlign: 'center', marginTop: 20 },
-  classesTitle: {
-    fontSize: 20,
-    marginVertical: 16,
-    marginLeft: 16,
-    fontWeight: 'bold', // Negritas en el título de clases
-  },
-  classCard: { marginBottom: 16, marginHorizontal: 16, elevation: 2 },
-  classTitle: {
-    color: '#1e3a63', // Azul claro para el título de clase
-    fontWeight: 'bold', // Negritas en el título de clase
-  },
-  classText: {
-    color: '#1e3a63', // Azul claro para el texto dentro de las clases
-  },
-  classSchedule: { marginTop: 8, color: '#555' },
+  profileText: { color: '#1e3a63', fontSize: 16 },
+  classesTitle: { marginVertical: 16, fontSize: 20, fontWeight: 'bold' },
+  classCard: { marginBottom: 12 },
+  classTitle: { fontSize: 18, fontWeight: 'bold' },
+  classText: { fontSize: 14 },
+  classSchedule: { fontSize: 12, color: '#777' },
   appbar: { backgroundColor: '#1e3a63' },
-  appbarTitle: {
-    color: 'white', // Título de la barra de navegación en blanco
-  },
+  appbarTitle: { fontWeight: 'bold' },
+  errorText: { color: 'red', textAlign: 'center' },
+  backButton: { marginTop: 16 },
+  deleteButton: { marginTop: 16, backgroundColor: 'red' },
 });
 
 export default TeacherProfileScreen;
