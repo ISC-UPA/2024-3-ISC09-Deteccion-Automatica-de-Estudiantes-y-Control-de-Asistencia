@@ -127,6 +127,9 @@ export default function OfficeSignIn(props: any): JSX.Element {
         if (role) {
           console.log('Rol del usuario:', role);
           console.log('Id del usuario:', id);
+          // Almacenar rol e id localmente
+          await AsyncStorage.setItem('userRole', role);
+          await AsyncStorage.setItem('userId', id);
         } else {
           console.error('No se encontró el rol en la respuesta.');
         }
@@ -135,12 +138,21 @@ export default function OfficeSignIn(props: any): JSX.Element {
       }
     };
 
-    getRole();
+    if (isSignedIn) {
+      getRole();
+    }
   }, [isSignedIn]);
 
   useEffect(() => {
+    const navigateToTabs = async () => {
+      const userRole = await AsyncStorage.getItem('userRole');
+      if (userRole) {
+        navigation.navigate('(tabs)', { screen: userRole });
+      }
+    };
+
     if (isSignedIn) {
-      navigation.navigate('(tabs)');
+      navigateToTabs();
     }
   }, [isSignedIn]);
 
@@ -152,6 +164,8 @@ export default function OfficeSignIn(props: any): JSX.Element {
 
   const handleSignOut = async () => {
     await AsyncStorage.removeItem('accessToken');
+    await AsyncStorage.removeItem('userRole');
+    await AsyncStorage.removeItem('userId');
     setIsSignedIn(false);
   };
 

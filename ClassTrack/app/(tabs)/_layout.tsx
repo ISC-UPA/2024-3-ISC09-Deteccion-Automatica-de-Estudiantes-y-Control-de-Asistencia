@@ -1,110 +1,43 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AdminLayout from './administrator/_layout';
+import StudentLayout from './student/_layout';
+import TeacherLayout from './teacher/_layout';
+import { View, Text } from 'react-native';
 
 export default function TabLayout() {
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: '#FFFFFF', // Color de íconos activos
-        tabBarInactiveTintColor: '#B0C4DE', // Color de íconos inactivos
-        tabBarStyle: {
-          backgroundColor: '#1e3a63', // Color de fondo de la barra
-        },
-        headerShown: false,
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'home' : 'home-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="StudentProfile"
-        options={{
-          title: 'Student',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'person' : 'person-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="classScreen"
-        options={{
-          title: 'Class Info',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'reader' : 'reader-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="TeacherProfileScreen"
-        options={{
-          title: 'Teacher Profile',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'person' : 'person-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="StudentsScreen"
-        options={{
-          title: 'Students',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'people' : 'people-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="TeacherClassesScreen"
-        options={{
-          title: 'Classes',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'book' : 'book-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="TeachersScreen"
-        options={{
-          title: 'Teachers',
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'school' : 'school-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
-    </Tabs>
-  );
+  const [role, setRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getUserRole = async () => {
+      const userRole = await AsyncStorage.getItem('userRole');
+      setRole(userRole);
+      setLoading(false);
+    };
+
+    getUserRole();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Cargando...</Text>
+      </View>
+    );
+  }
+
+  if (role === 'administrator') {
+    return <AdminLayout />;
+  } else if (role === 'teacher') {
+    return <TeacherLayout />;
+  } else if (role === 'student') {
+    return <StudentLayout />;
+  } else {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Rol no válido.</Text>
+      </View>
+    );
+  }
 }
