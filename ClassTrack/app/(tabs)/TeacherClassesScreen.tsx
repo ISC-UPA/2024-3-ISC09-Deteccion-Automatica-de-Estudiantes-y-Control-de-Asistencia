@@ -244,6 +244,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingBottom: 16,
+    marginTop:16,
   },
   modalTitle: { fontSize: 18, fontWeight: '600', marginBottom: 10 },
   input: {
