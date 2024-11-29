@@ -8,6 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instala las dependencias
+RUN npm config set registry http://registry.npmjs.org/
 RUN npm install --verbose
 
 # Copia el resto de la aplicación
