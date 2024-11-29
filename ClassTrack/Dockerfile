@@ -1,5 +1,5 @@
-# Usa una imagen base oficial de Node.js
-FROM node:lts
+# Usa una imagen base específica de Node.js (v20.17.0)
+FROM node:20.17.0
 
 # Establece el directorio de trabajo en el contenedor
 WORKDIR /app
