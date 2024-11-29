@@ -8,6 +8,7 @@ import axios from 'axios';
 interface AbsenceData {
   subject: string;
   count: number;
+  attendanceIds: string[]; // Corregido a 'attendanceIds' (array de IDs de asistencia)
 }
 
 const StudentProfile = () => {
@@ -18,12 +19,13 @@ const StudentProfile = () => {
   const [absenceData, setAbsenceData] = useState<AbsenceData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [editMode, setEditMode] = useState(false); // For toggling edit mode
-  const [updatedData, setUpdatedData] = useState(studentData); // For storing updated values
+  const [editMode, setEditMode] = useState(false); // Para alternar el modo de edición
+  const [updatedData, setUpdatedData] = useState(studentData); // Para almacenar los valores actualizados
 
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
+        // Obtener los datos del estudiante
         const studentResponse = await axios.post(
           'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
           {
@@ -42,12 +44,14 @@ const StudentProfile = () => {
         setStudentData(studentResponse.data.data.users[0]);
         setUpdatedData(studentResponse.data.data.users[0]);
 
+        // Obtener las asistencias del estudiante
         const absenceResponse = await axios.post(
           'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
           {
             query: `
               query Query($where: AttendanceWhereInput!) {
                 attendances(where: $where) {
+                  id
                   class {
                     name
                   }
@@ -59,19 +63,24 @@ const StudentProfile = () => {
         );
 
         const classCounts: { [key: string]: number } = {};
+        const attendanceIds: { [key: string]: string[] } = {}; // Para almacenar los attendanceIds por clase
 
         absenceResponse.data.data.attendances.forEach((attendance: any) => {
           const className = attendance.class.name;
           if (classCounts[className]) {
             classCounts[className] += 1;
+            attendanceIds[className].push(attendance.id);
           } else {
             classCounts[className] = 1;
+            attendanceIds[className] = [attendance.id];
           }
         });
 
+        // Formatear los datos de ausencias
         const formattedAbsenceData = Object.keys(classCounts).map((className) => ({
           subject: className,
           count: classCounts[className],
+          attendanceIds: attendanceIds[className], // Usar el array de IDs de asistencia
         }));
 
         setAbsenceData(formattedAbsenceData);
@@ -136,6 +145,26 @@ const StudentProfile = () => {
 
   const handleDelete = async () => {
     try {
+      // Eliminar las asistencias por attendanceId
+      for (const { attendanceIds } of absenceData) {
+        for (const attendanceId of attendanceIds) {
+          await axios.post(
+            'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+            {
+              query: `
+                mutation DeleteAttendance($where: AttendanceWhereUniqueInput!) {
+                  deleteAttendance(where: $where) {
+                    id
+                  }
+                }
+              `,
+              variables: { where: { id: attendanceId } },
+            }
+          );
+        }
+      }
+
+      // Eliminar al estudiante
       await axios.post(
         'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
         {
@@ -150,10 +179,14 @@ const StudentProfile = () => {
           variables: { where: { id: studentId } },
         }
       );
-      await AsyncStorage.clear(); // Limpiar los datos del usuario en AsyncStorage
-      router.push('/StudentsScreen'); // Redirigir al login o página principal
+
+      // Limpiar los datos del usuario en AsyncStorage
+      await AsyncStorage.clear();
+
+      // Redirigir a la pantalla de estudiantes
+      router.push('/StudentsScreen');
     } catch (error) {
-      console.error('Error deleting user:', error);
+      console.error('Error deleting user and attendances:', error);
     }
   };
 
@@ -220,60 +253,97 @@ const StudentProfile = () => {
                     value={updatedData.email}
                     onChangeText={(text) => setUpdatedData({ ...updatedData, email: text })}
                   />
-                  <Button mode="contained" onPress={handleUpdate}>
-                    Guardar Cambios
+                  <Button mode="contained" onPress={handleUpdate} style={styles.updateButton}>
+                    Actualizar
                   </Button>
                 </>
               ) : (
                 <>
                   <Title>{studentData.name}</Title>
-                  <Paragraph>ID: {studentData.studentID}</Paragraph>
-                  <Paragraph>Email: {studentData.email}</Paragraph>
-                  <Button mode="text" onPress={() => setEditMode(true)}>
-                    Editar Información
+                  <Text>{studentData.studentID}</Text>
+                  <Text>{studentData.email}</Text>
+                  <Button mode="contained" onPress={() => setEditMode(true)} style={styles.editButton}>
+                    Editar
                   </Button>
                 </>
               )}
             </View>
           </Card.Content>
         </Card>
-        {absenceData.map(({ subject, count }) => renderAbsenceBar(subject, count))}
+        <Card style={styles.card}>
+          <Card.Content>
+            <Title>Asistencias</Title>
+            {absenceData.length > 0 ? (
+              absenceData.map(({ subject, count }) => renderAbsenceBar(subject, count))
+            ) : (
+              <Text>No se encontraron asistencias para este estudiante.</Text>
+            )}
+          </Card.Content>
+        </Card>
+        <Button mode="contained" onPress={handleDelete} style={styles.deleteButton}>
+          Eliminar Estudiante
+        </Button>
       </ScrollView>
-      <Button
-        mode="contained"
-        onPress={() => router.back()}
-        style={styles.backButton}
-        icon="arrow-left"
-      >
-        Regresar
-      </Button>
-      <Button
-        mode="contained"
-        onPress={handleDelete}
-        style={styles.deleteButton}
-        icon="delete"
-      >
-        Eliminar Cuenta
-      </Button>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-  scrollContent: { padding: 16, paddingBottom: 80 },
-  profileCard: { marginBottom: 16, elevation: 2 },
-  profileContent: { flexDirection: 'row', alignItems: 'center' },
-  profileImage: { width: 60, height: 60, borderRadius: 30, marginRight: 16 },
-  profileInfo: { flex: 1 },
-  card: { marginBottom: 16, elevation: 2 },
-  subjectRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  subjectTitle: { fontSize: 16, fontWeight: 'bold', flex: 1 },
-  absenceText: { fontSize: 14, color: '#6200EE' },
-  criticalText: { color: '#F44336' },
-  progressBar: { height: 8, borderRadius: 4 },
-  backButton: { position: 'absolute', bottom: 80, right: 16 },
-  deleteButton: { position: 'absolute', bottom: 16, right: 16 },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollContent: {
+    padding: 16,
+  },
+  profileCard: {
+    marginBottom: 16,
+  },
+  profileContent: {
+    flexDirection: 'row',
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginRight: 16,
+  },
+  profileInfo: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  editButton: {
+    marginTop: 16,
+  },
+  updateButton: {
+    marginTop: 16,
+  },
+  card: {
+    marginBottom: 16,
+  },
+  subjectRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  subjectTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    flex: 1,
+  },
+  absenceText: {
+    fontSize: 14,
+    color: '#000',
+  },
+  criticalText: {
+    color: '#F44336',
+  },
+  progressBar: {
+    marginTop: 8,
+  },
+  deleteButton: {
+    marginTop: 16,
+  },
 });
 
 export default StudentProfile;
