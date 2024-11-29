@@ -52,7 +52,16 @@ const DELETE_CLASS = gql`
 const ClassScreen: React.FC = () => {
   const route = useRoute<ClassScreenRouteProp>();
   const navigation = useNavigation();
-  const { id } = route.params;
+
+  // Verifica si 'id' está definido, y si no lo está, maneja el error
+  const { id } = route.params || {};  // Si no hay 'params' o 'id', se asigna un objeto vacío
+
+  // Si no hay 'id', muestra un mensaje de error
+  if (!id) {
+    Alert.alert('Error', 'ID de clase no encontrado.');
+    navigation.goBack(); // Redirige a la pantalla anterior si no hay ID
+    return null;
+  }
 
   const { loading: classLoading, error: classError, data: classData } = useQuery(GET_CLASS_DETAILS, {
     variables: { where: { id: { equals: id } } },
