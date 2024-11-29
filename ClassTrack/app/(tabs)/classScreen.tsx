@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View, Alert } from 'react-native';
 import { Appbar, Card, Text, ActivityIndicator, ProgressBar, Button } from 'react-native-paper';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { router } from 'expo-router';
 
 type RootStackParamList = {
   ClassScreen: {
@@ -152,9 +153,9 @@ const ClassScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       {/* Appbar */}
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => navigation.goBack()} />
-        <Appbar.Content title={classInfo?.name || 'Clase'} />
+      <Appbar.Header style={styles.appbarHeader}>
+      <Appbar.BackAction color="white" onPress={() => router.push('/(tabs)/TeacherClassesScreen')} />
+        <Appbar.Content title={classInfo?.name || 'Clase'} titleStyle={styles.appbarTitle} />
       </Appbar.Header>
 
       {/* Class Information */}
@@ -200,6 +201,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6200EE',
   },
+  appbarHeader: {
+    backgroundColor: '#1e3a63'
+  },
+  appbarTitle: {
+    color: 'white' 
+  },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -241,7 +248,7 @@ const styles = StyleSheet.create({
   deleteButton: {
     margin: 16,
     borderRadius: 8,
-    backgroundColor: '#F44336',
+    backgroundColor: '#1e3a63',
   },
 });
 

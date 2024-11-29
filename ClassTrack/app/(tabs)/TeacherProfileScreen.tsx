@@ -224,7 +224,7 @@ const TeacherProfileScreen = () => {
                   <Title style={styles.profileTitle}>{teacherData.name}</Title>
                   <Paragraph style={styles.profileText}>ID: {teacherData.studentID}</Paragraph>
                   <Paragraph style={styles.profileText}>Email: {teacherData.email}</Paragraph>
-                  <Button mode="text" onPress={() => setEditMode(true)}>
+                  <Button style={styles.editButton} mode="text" onPress={() => setEditMode(true)}>
                     Editar Información
                   </Button>
                 </>
@@ -258,7 +258,7 @@ const TeacherProfileScreen = () => {
       </ScrollView>
       <Button
         mode="contained"
-        onPress={() => router.back()}
+        onPress={() => router.push('/(tabs)/TeachersScreen')}
         style={styles.backButton}
         icon="arrow-left"
       >
@@ -294,10 +294,11 @@ const styles = StyleSheet.create({
   classText: { fontSize: 14 },
   classSchedule: { fontSize: 12, color: '#777' },
   appbar: { backgroundColor: '#1e3a63' },
-  appbarTitle: { fontWeight: 'bold' },
+  appbarTitle: { fontWeight: 'bold', color: 'white' },
   errorText: { color: 'red', textAlign: 'center' },
-  backButton: { marginTop: 16 },
-  deleteButton: { marginTop: 16, backgroundColor: 'red' },
+  backButton: { marginTop: 16, backgroundColor:'#1e3a63'},
+  deleteButton: { marginTop: 16, marginBottom: 16, backgroundColor: '#1e3a63' },
+  editButton: {marginTop: 16, backgroundColor: 'rgba(30, 58, 99, 0.1)'}
 });
 
 export default TeacherProfileScreen;

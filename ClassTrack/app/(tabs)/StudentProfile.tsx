@@ -221,9 +221,9 @@ const StudentProfile = () => {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header>
-        <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Perfil del Estudiante" />
+      <Appbar.Header style={styles.appbarHeader}>
+      <Appbar.BackAction color="white" onPress={() => router.push('/(tabs)/StudentsScreen')} />
+        <Appbar.Content title="Perfil del Estudiante" titleStyle={styles.appbarTitle} />
         <Appbar.Action icon="logout" onPress={handleLogout} />
       </Appbar.Header>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -296,6 +296,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
   },
+  appbarHeader: {
+    backgroundColor: '#1e3a63'
+  },
+  appbarTitle: {
+    color: 'white' 
+  },
   profileCard: {
     marginBottom: 16,
   },
@@ -314,6 +320,7 @@ const styles = StyleSheet.create({
   },
   editButton: {
     marginTop: 16,
+    backgroundColor: '#1e3a63'
   },
   updateButton: {
     marginTop: 16,
@@ -343,6 +350,7 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     marginTop: 16,
+    backgroundColor: '#1e3a63'
   },
 });
 
