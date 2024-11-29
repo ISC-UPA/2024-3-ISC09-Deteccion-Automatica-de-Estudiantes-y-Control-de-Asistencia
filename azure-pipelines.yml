@@ -14,60 +14,61 @@ variables:
 
 stages:
 - stage: Build
-  displayName: Build and Push Docker Image
+  displayName: Build and Push Docker Images
   jobs:
-  - job: Build_api
-    displayName: Build api
-    steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'classtrackapi'
-        command: 'build'
-        Dockerfile: '**/backend/Dockerfile'
-        arguments: '-t classtrackapi.azurecr.io/classtrack-api:latest'
-    
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'classtrackapi'
-        repository: 'classtrackapi.azurecr.io/classtrack-api'
-        command: 'push'
-        tags: 'latest'
-
   - job: Build
-    displayName: Build front
+    displayName: Build and Push Docker Images
     steps:
+
+    # Build Frontend Docker Image
     - task: Docker@2
+      displayName: Build Frontend Docker Image
       inputs:
         containerRegistry: 'classtrackapi'
         command: 'build'
         Dockerfile: '**/ClassTrack/Dockerfile'
-        arguments: '-t classtrackapi.azurecr.io/classtrack-front:latest'
+        arguments: '-t classtrackapi.azurecr.io/classtrack-front:$(tag)'
+
+    # Push Frontend Docker Image
     - task: Docker@2
+      displayName: Push Frontend Docker Image
       inputs:
         containerRegistry: 'classtrackapi'
-        repository: 'classtrackapi.azurecr.io/classtrack-front'
         command: 'push'
-        tags: 'latest'
+        repository: 'classtrackapi.azurecr.io/classtrack-front'
+        tags: $(tag)
 
-- stage: Deploy
-  displayName: Deploy to Azure Web
-  dependsOn: Build
-  jobs:
-  - job: Deploy_api
-    displayName: Deploy api
-    steps:    
+    # Build Backend Docker Image
+    - task: Docker@2
+      displayName: Build Backend Docker Image
+      inputs:
+        containerRegistry: 'classtrackapi'
+        command: 'build'
+        Dockerfile: '**/backend/Dockerfile'
+        arguments: '-t classtrackapi.azurecr.io/classtrack-api:$(tag)'
+
+
+    # Push Backend Docker Image
+    - task: Docker@2
+      displayName: Push Backend Docker Image
+      inputs:
+        containerRegistry: 'classtrackapi'
+        command: 'push'
+        repository: 'classtrackapi.azurecr.io/classtrack-api'
+        tags: $(tag)
+
+    # Deploy Backend Container
     - task: AzureWebAppContainer@1
+      displayName: Deploy Backend Container
       inputs:
         azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
         appName: 'ClassTrack-API-Alumnos2'
-        containers: 'classtrackapi.azurecr.io/classtrack-api:latest'
-        appSettings: '-Port 3000'
-  - job: Deploy
-    displayName: Deploy
-    steps:    
+        containers: classtrackapi.azurecr.io/classtrack-api:$(tag)
+
+    # Deploy Frontend Container
     - task: AzureWebAppContainer@1
+      displayName: Deploy Frontend Container
       inputs:
         azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
         appName: 'ClassTrack-Frontend'
-        containers: ' classtrackapi.azurecr.io/classtrack-front:latest'
-        appSettings: '-Port 8081 -RequestTimeout 6000'
+        containers: classtrackapi.azurecr.io/classtrack-front:$(tag)
