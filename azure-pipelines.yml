@@ -1,5 +1,5 @@
 trigger:
-- feature/Docker
+- feat/rolesScreens
 
 resources:
 - repo: self
@@ -7,36 +7,79 @@ resources:
 pool:
   name: 'Default'
   demands:
-  - agent.name -equals agentclass
+  - agent.name -equals agentclass2
 
 variables:
   tag: '$(Build.BuildId)'
-
+  dockerHost: 'unix:///var/run/docker.sock'
+  
 stages:
 - stage: Build
-  displayName: Build and Push Docker Image
+  displayName: Build and Push Docker Images
   jobs:
   - job: Build
     displayName: Build
     steps:
+    # Ensure correct Docker socket is used
+    - script: echo "Setting up Docker socket"
+      displayName: Configure Docker Socket
+      env:
+        DOCKER_HOST: $(dockerHost)
+
+    # Build Frontend Docker Image
     - task: Docker@2
-      displayName: Build Docker image
+      displayName: Build frontend Docker image
+      inputs:
+        containerRegistry: 'classtrackapi'
+        command: 'build'
+        Dockerfile: '**/ClassTrack/Dockerfile'
+        arguments: '-t classtrackapi.azurecr.io/classtrack-front:latest'
+      env:
+        DOCKER_HOST: $(dockerHost)
+
+    # Push Frontend Docker Image
+    - task: Docker@2
+      displayName: Push frontend Docker image
+      inputs:
+        containerRegistry: 'classtrackapi'
+        command: 'push'
+        repository: 'frontend'
+        tags: $(tag)
+      env:
+        DOCKER_HOST: $(dockerHost)
+
+    # Backend Build and Push (unchanged)
+    - task: Docker@2
+      displayName: Build backend Docker image
       inputs:
         containerRegistry: 'classtrackapi'
         command: 'build'
         Dockerfile: '**/backend/Dockerfile'
         arguments: '-t classtrackapi.azurecr.io/classtrack-api:latest'
+      env:
+        DOCKER_HOST: $(dockerHost)
+
     - task: Docker@2
-      displayName: Push Docker image
+      displayName: Push backend Docker image
       inputs:
         containerRegistry: 'classtrackapi'
         command: 'push'
-        repository: 'classtrack-api'
-        tags: 'latest'
+        repository: 'backend'
+        tags: $(tag)
+      env:
+        DOCKER_HOST: $(dockerHost)
+
+    # Deploy Containers
     - task: AzureWebAppContainer@1
-      displayName: Deploy Docker image to Azure Web App
+      displayName: Deploy backend container
       inputs:
         azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
-        appName: 'ClassTrack-API-Alumnos'
+        appName: 'ClassTrack-API-Alumnos2'
         containers: 'classtrackapi.azurecr.io/classtrack-api:latest'
-        appSettings: '-Port 3000'
+
+    - task: AzureWebAppContainer@1
+      displayName: Deploy frontend container
+      inputs:
+        azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
+        appName: 'ClassTrack-Frontend'
+        containers: 'classtrackapi.azurecr.io/classtrack-front:latest'
