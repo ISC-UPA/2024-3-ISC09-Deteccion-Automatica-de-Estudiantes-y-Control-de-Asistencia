@@ -37,7 +37,7 @@ stages:
       displayName: Deploy Backend Docker image to Azure Web App
       inputs:
         azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
-        appName: 'ClassTrack-API-Alumnos2'
+        appName: 'ClassTrack-API-Alumnos'
         containers: 'classtrackapi.azurecr.io/classtrack-api:latest'
         appSettings: '-Port 3000'
   
