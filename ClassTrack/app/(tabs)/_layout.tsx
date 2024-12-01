@@ -16,7 +16,7 @@ export default function TabLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{
+        options={{ href: null,
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
@@ -29,7 +29,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="StudentProfile"
-        options={{
+        options={{ href: null,
           title: 'Student',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
@@ -42,7 +42,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="classScreen"
-        options={{
+        options={{ href: null,
           title: 'Class Info',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
@@ -55,7 +55,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="TeacherProfileScreen"
-        options={{
+        options={{ href: null,
           title: 'Teacher Profile',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
