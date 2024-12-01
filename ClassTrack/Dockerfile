@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instala las dependencias
-RUN yarn install --verbose
+RUN npm install --verbose
 
 # Copia el resto de la aplicación
 COPY . .
@@ -17,7 +17,7 @@ COPY . .
 EXPOSE 8081
 
 # Comando para correr la aplicación
-RUN yarn
-RUN yarn run build
+RUN npm
+RUN npm run build
 
-CMD ["yarn", "run", "start"]
+CMD ["npm", "run", "start"]
