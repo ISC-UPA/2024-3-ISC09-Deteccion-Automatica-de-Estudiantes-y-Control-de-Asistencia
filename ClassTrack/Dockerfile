@@ -17,7 +17,6 @@ COPY . .
 EXPOSE 8081
 
 # Comando para correr la aplicación
-RUN npm
 RUN npm run build
 
 CMD ["npm", "run", "start"]
