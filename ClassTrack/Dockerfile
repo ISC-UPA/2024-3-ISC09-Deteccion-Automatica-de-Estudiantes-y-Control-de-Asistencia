@@ -8,8 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instala las dependencias
-RUN npm config set registry http://registry.npmjs.org/
-RUN npm install --verbose
+RUN yarn install --verbose
 
 # Copia el resto de la aplicación
 COPY . .
@@ -18,4 +17,7 @@ COPY . .
 EXPOSE 8081
 
 # Comando para correr la aplicación
-CMD ["npm", "start"]
+RUN yarn
+RUN yarn run build
+
+CMD ["yarn", "run", "start"]
