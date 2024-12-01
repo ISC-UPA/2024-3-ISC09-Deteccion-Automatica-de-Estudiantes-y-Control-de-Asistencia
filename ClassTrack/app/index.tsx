@@ -7,6 +7,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { ThemedView } from '../components/ThemedView';
 import axios from 'axios';
+import { useRouter } from 'expo-router';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -138,9 +139,11 @@ export default function OfficeSignIn(props: any): JSX.Element {
     getRole();
   }, [isSignedIn]);
 
+  const router = useRouter();
+
   useEffect(() => {
     if (isSignedIn) {
-      navigation.navigate('(tabs)');
+      router.push('/(tabs)/TeacherClassesScreen'); // Asegúrate de usar la ruta correcta
     }
   }, [isSignedIn]);
 

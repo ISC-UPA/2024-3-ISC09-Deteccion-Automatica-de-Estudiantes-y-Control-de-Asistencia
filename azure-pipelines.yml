@@ -19,28 +19,7 @@ stages:
   - job: Build
     displayName: Build
     steps:
-    - task: Docker@2
-      displayName: Build Backend Docker image
-      inputs:
-        containerRegistry: 'classtrackapi'
-        command: 'build'
-        Dockerfile: '**/backend/Dockerfile'
-        arguments: '-t classtrackapi.azurecr.io/classtrack-api:latest'
-    - task: Docker@2
-      displayName: Push Backend Docker image
-      inputs:
-        containerRegistry: 'classtrackapi'
-        command: 'push'
-        repository: 'classtrack-api'
-        tags: 'latest'
-    - task: AzureWebAppContainer@1
-      displayName: Deploy Backend Docker image to Azure Web App
-      inputs:
-        azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
-        appName: 'ClassTrack-API-Alumnos'
-        containers: 'classtrackapi.azurecr.io/classtrack-api:latest'
-        appSettings: '-Port 3000'
-  
+
     #Build Frontend Docker Image
     - task: Docker@2
       displayName: Build Frontend Docker Image
