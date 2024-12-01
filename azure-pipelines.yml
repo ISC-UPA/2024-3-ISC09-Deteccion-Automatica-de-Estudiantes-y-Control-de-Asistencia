@@ -1,5 +1,5 @@
 trigger:
-- feature/Docker
+- Develop
 
 resources:
 - repo: self
