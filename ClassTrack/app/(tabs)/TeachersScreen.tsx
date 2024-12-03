@@ -80,11 +80,11 @@ const TeachersScreen: React.FC = () => {
   }, []);
 
   const handleCreateTeacher = async () => {
-    if (!newTeacher.name || !newTeacher.studentID || !newTeacher.email || !newTeacher.password) {
+    if (!newTeacher.name || !newTeacher.studentID || !newTeacher.email) {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
-  
+
     try {
       const response = await axios.post('https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql', {
         query: `
@@ -102,12 +102,12 @@ const TeachersScreen: React.FC = () => {
             name: newTeacher.name,
             studentID: newTeacher.studentID,
             email: newTeacher.email,
-            password: newTeacher.password,
+            password: '12345678', // Contraseña predeterminada
             role: 'teacher',
           },
         },
       });
-  
+
       const createdTeacher = response.data.data.createUser;
       if (createdTeacher) {
         setTeachers([...teachers, createdTeacher]);
@@ -121,7 +121,8 @@ const TeachersScreen: React.FC = () => {
       Alert.alert('Error', 'Failed to create teacher. Please try again.');
     }
   };
-  
+
+
 
   const sortData = () => {
     if (isSorted) {
@@ -178,7 +179,7 @@ const TeachersScreen: React.FC = () => {
           />
           <TextInput
             style={styles.input}
-            placeholder="Student ID"
+            placeholder="ID"
             value={newTeacher.studentID}
             onChangeText={(text) => setNewTeacher({ ...newTeacher, studentID: text })}
           />
@@ -188,17 +189,12 @@ const TeachersScreen: React.FC = () => {
             value={newTeacher.email}
             onChangeText={(text) => setNewTeacher({ ...newTeacher, email: text })}
           />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            secureTextEntry
-            value={newTeacher.password}
-            onChangeText={(text) => setNewTeacher({ ...newTeacher, password: text })}
-          />
+          {/* Campo de contraseña eliminado */}
           <Button title="Create" onPress={handleCreateTeacher} />
           <Button title="Cancel" color="red" onPress={() => setModalVisible(false)} />
         </View>
       </Modal>
+
     </View>
   );
 };
@@ -231,7 +227,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginHorizontal: 16,
     marginBottom: 16,
-    marginTop:16,   
+    marginTop: 16,
     borderWidth: 1,
     borderColor: '#e0e0e0',
     shadowColor: '#000',

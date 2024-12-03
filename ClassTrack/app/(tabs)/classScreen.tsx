@@ -35,6 +35,7 @@ const GET_ATTENDANCES = gql`
         name
       }
       user {
+        id
         name
       }
     }
@@ -54,13 +55,11 @@ const ClassScreen: React.FC = () => {
   const route = useRoute<ClassScreenRouteProp>();
   const navigation = useNavigation();
 
-  // Verifica si 'id' está definido, y si no lo está, maneja el error
-  const { id } = route.params || {};  // Si no hay 'params' o 'id', se asigna un objeto vacío
+  const { id } = route.params || {};
 
-  // Si no hay 'id', muestra un mensaje de error
   if (!id) {
     Alert.alert('Error', 'ID de clase no encontrado.');
-    navigation.goBack(); // Redirige a la pantalla anterior si no hay ID
+    navigation.goBack();
     return null;
   }
 
@@ -75,7 +74,7 @@ const ClassScreen: React.FC = () => {
   const [deleteClass] = useMutation(DELETE_CLASS, {
     onCompleted: () => {
       Alert.alert('Éxito', 'La clase ha sido eliminada.');
-      navigation.goBack(); // Regresa a la pantalla anterior después de eliminar
+      navigation.goBack();
     },
     onError: (error) => {
       Alert.alert('Error', error.message);
@@ -97,6 +96,13 @@ const ClassScreen: React.FC = () => {
         },
       ]
     );
+  };
+
+  const handleStudentClick = (studentId: string) => {
+    router.push({
+      pathname: '/(tabs)/StudentProfile',
+      params: { studentId },
+    });
   };
 
   if (classLoading || attendanceLoading) {
@@ -121,15 +127,19 @@ const ClassScreen: React.FC = () => {
   const classInfo = classData?.classes?.[0];
   const attendances = attendanceData?.attendances || [];
 
-  const renderAttendanceBar = (user: string, count: number) => {
-    const progress = count / 10; // Ajustar según el máximo deseado
+  const renderAttendanceCard = (studentId: string, studentName: string, count: number) => {
+    const progress = count / 10;
     const isCritical = count >= 10;
 
     return (
-      <Card style={styles.attendanceCard} key={user}>
+      <Card
+        style={styles.attendanceCard}
+        key={studentId}
+        onPress={() => handleStudentClick(studentId)}
+      >
         <Card.Content>
           <View style={styles.attendanceRow}>
-            <Text style={styles.attendanceName}>{user}</Text>
+            <Text style={styles.attendanceName}>{studentName}</Text>
             <Text style={[styles.attendanceCount, isCritical && styles.criticalText]}>
               {count}/10
             </Text>
@@ -144,17 +154,23 @@ const ClassScreen: React.FC = () => {
     );
   };
 
-  const attendanceCounts: { [key: string]: number } = {};
+  const attendanceCounts: { [key: string]: { name: string; count: number } } = {};
   attendances.forEach((attendance: any) => {
+    const userId = attendance.user.id;
     const userName = attendance.user.name;
-    attendanceCounts[userName] = (attendanceCounts[userName] || 0) + 1;
+
+    if (!attendanceCounts[userId]) {
+      attendanceCounts[userId] = { name: userName, count: 1 };
+    } else {
+      attendanceCounts[userId].count += 1;
+    }
   });
 
   return (
     <View style={styles.container}>
       {/* Appbar */}
       <Appbar.Header style={styles.appbarHeader}>
-      <Appbar.BackAction color="white" onPress={() => router.push('/(tabs)/TeacherClassesScreen')} />
+        <Appbar.BackAction color="white" onPress={() => router.push('/(tabs)/TeacherClassesScreen')} />
         <Appbar.Content title={classInfo?.name || 'Clase'} titleStyle={styles.appbarTitle} />
       </Appbar.Header>
 
@@ -170,7 +186,9 @@ const ClassScreen: React.FC = () => {
 
       {/* Attendance List */}
       <ScrollView>
-        {Object.entries(attendanceCounts).map(([user, count]) => renderAttendanceBar(user, count))}
+        {Object.entries(attendanceCounts).map(([userId, { name, count }]) =>
+          renderAttendanceCard(userId, name, count)
+        )}
       </ScrollView>
 
       {/* Delete Button */}
@@ -202,10 +220,10 @@ const styles = StyleSheet.create({
     color: '#6200EE',
   },
   appbarHeader: {
-    backgroundColor: '#1e3a63'
+    backgroundColor: '#1e3a63',
   },
   appbarTitle: {
-    color: 'white' 
+    color: 'white',
   },
   errorContainer: {
     flex: 1,
