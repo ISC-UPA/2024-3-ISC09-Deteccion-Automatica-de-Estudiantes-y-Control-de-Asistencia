@@ -27,7 +27,7 @@ stages:
         containerRegistry: 'classtrackapi'
         command: 'build'
         Dockerfile: '**/ClassTrack/Dockerfile'
-        arguments: '-t classtrackapi.azurecr.io/classtrack-frontend:latest'
+        arguments: '-t classtrackapi.azurecr.io/classtrack-frontend2:latest'
 
     # Push Frontend Docker Image
     - task: Docker@2
@@ -35,7 +35,7 @@ stages:
       inputs:
         containerRegistry: 'classtrackapi'
         command: 'push'
-        repository: 'classtrack-frontend'
+        repository: 'classtrack-frontend2'
         tags: latest
 
     # Deploy Frontend Container
@@ -43,6 +43,6 @@ stages:
       displayName: Deploy Frontend Container
       inputs:
         azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
-        appName: 'ClassTrack-Frontend'
-        containers: classtrackapi.azurecr.io/classtrack-frontend:latest
+        appName: 'ClassTrack'
+        containers: classtrackapi.azurecr.io/classtrack-frontend2:latest
         appSettings: '-Port 8081'
