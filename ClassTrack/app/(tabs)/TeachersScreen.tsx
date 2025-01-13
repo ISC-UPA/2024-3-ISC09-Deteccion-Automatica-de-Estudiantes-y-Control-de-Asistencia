@@ -55,7 +55,7 @@ const TeachersScreen: React.FC = () => {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        const response = await axios.post('https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql', {
+        const response = await axios.post('http://localhost:3000/api/graphql', {
           query: `
             query Query($where: UserWhereInput!) {
               users(where: $where) {
@@ -86,7 +86,7 @@ const TeachersScreen: React.FC = () => {
     }
 
     try {
-      const response = await axios.post('https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql', {
+      const response = await axios.post('http://localhost:3000/api/graphql', {
         query: `
           mutation Mutation($data: UserCreateInput!) {
             createUser(data: $data) {

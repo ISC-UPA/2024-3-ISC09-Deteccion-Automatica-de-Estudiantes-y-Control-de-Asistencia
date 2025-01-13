@@ -27,7 +27,7 @@ const StudentProfile = () => {
       try {
         // Obtener los datos del estudiante
         const studentResponse = await axios.post(
-          'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+          'http://localhost:3000/api/graphql',
           {
             query: `
               query Query($where: UserWhereInput!) {
@@ -46,7 +46,7 @@ const StudentProfile = () => {
 
         // Obtener las asistencias del estudiante
         const absenceResponse = await axios.post(
-          'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+          'http://localhost:3000/api/graphql',
           {
             query: `
               query Query($where: AttendanceWhereInput!) {
@@ -108,7 +108,7 @@ const StudentProfile = () => {
   const handleUpdate = async () => {
     try {
       const response = await axios.post(
-        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+        'http://localhost:3000/api/graphql',
         {
           query: `
             mutation UpdateUser($where: UserWhereUniqueInput!, $data: UserUpdateInput!) {
@@ -149,7 +149,7 @@ const StudentProfile = () => {
       for (const { attendanceIds } of absenceData) {
         for (const attendanceId of attendanceIds) {
           await axios.post(
-            'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+            'http://localhost:3000/api/graphql',
             {
               query: `
                 mutation DeleteAttendance($where: AttendanceWhereUniqueInput!) {
@@ -166,7 +166,7 @@ const StudentProfile = () => {
 
       // Eliminar al estudiante
       await axios.post(
-        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+        'http://localhost:3000/api/graphql',
         {
           query: `
             mutation DeleteUser($where: UserWhereUniqueInput!) {

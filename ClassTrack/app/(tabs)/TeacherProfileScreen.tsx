@@ -35,7 +35,7 @@ const TeacherProfileScreen = () => {
         setError(null);
 
         const teacherResponse = await axios.post(
-          'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+          'http://localhost:3000/api/graphql',
           {
             query: `
               query Query($where: UserWhereInput!) {
@@ -59,7 +59,7 @@ const TeacherProfileScreen = () => {
         }
 
         const classResponse = await axios.post(
-          'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+          'http://localhost:3000/api/graphql',
           {
             query: `
               query Query($where: ClassWhereInput!) {
@@ -97,7 +97,7 @@ const TeacherProfileScreen = () => {
   const handleUpdate = async () => {
     try {
       const response = await axios.post(
-        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+        'http://localhost:3000/api/graphql',
         {
           query: `
             mutation UpdateUser($where: UserWhereUniqueInput!, $data: UserUpdateInput!) {
@@ -144,7 +144,7 @@ const TeacherProfileScreen = () => {
   const handleDelete = async () => {
     try {
       await axios.post(
-        'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+        'http://localhost:3000/api/graphql',
         {
           query: `
             mutation DeleteUser($where: UserWhereUniqueInput!) {

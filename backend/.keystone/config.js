@@ -284,6 +284,14 @@ var lists = {
 
 // keystone.ts
 var keystone_default = (0, import_core.config)({
+  server: {
+    cors: {
+      origin: ["http://localhost:8081"],
+      // Permite el origen del frontend
+      credentials: true
+      // Si usas cookies o autenticación
+    }
+  },
   db: {
     provider: "sqlite",
     url: "file:./db/classtrack.db"

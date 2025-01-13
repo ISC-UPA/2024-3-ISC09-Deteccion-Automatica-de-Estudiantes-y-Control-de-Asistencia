@@ -100,7 +100,7 @@ export default function OfficeSignIn(props: any): JSX.Element {
         }
 
         const response = await axios.post(
-          'https://classtrack-api-alumnos-bqh8a0fnbpefhhgq.mexicocentral-01.azurewebsites.net/api/graphql',
+          'http://localhost:3000/api/graphql',
           {
             query: `
               query Query($where: UserWhereUniqueInput!) {
