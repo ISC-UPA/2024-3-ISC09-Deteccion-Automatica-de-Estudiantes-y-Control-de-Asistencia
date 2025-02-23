@@ -7,7 +7,8 @@ export default config({
     cors: {
       origin: [
         'http://localhost:8081', // Permitir el frontend local
-        'http://192.168.1.0/24', // Permitir cualquier dispositivo dentro de la red local}
+        'http://192.168.1.0/24', // Permitir cualquier dispositivo dentro de la red local
+        'http://192.168.148.2',
       ],
       credentials: true, // Necesario si usas cookies o autenticación
     },
