@@ -1,148 +1,205 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { ScrollView, StyleSheet, View, Alert } from 'react-native';
+import { Appbar, Card, Text, ActivityIndicator, ProgressBar, Button } from 'react-native-paper';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
-
+import { gql, useQuery, useMutation } from '@apollo/client';
+import { router } from 'expo-router';
 
 type RootStackParamList = {
-  TeacherProfile: undefined;
   ClassScreen: {
-    subject: string;
-    schedule: string;
-    classroom: string;
+    id: string;
   };
 };
 
 type ClassScreenRouteProp = RouteProp<RootStackParamList, 'ClassScreen'>;
 
-interface AttendanceRecord {
-  id: string;
-  studentName: string;
-  accumulatedAbsences: number;
-  isPresent: boolean;
-}
+const GET_CLASS_DETAILS = gql`
+  query Query($where: ClassWhereInput!) {
+    classes(where: $where) {
+      id
+      name
+      schedule
+      description
+      teacher {
+        name
+      }
+    }
+  }
+`;
 
-const MAX_ABSENCES = 5;
+const GET_ATTENDANCES = gql`
+  query Attendance($where: AttendanceWhereInput!) {
+    attendances(where: $where) {
+      class {
+        id
+        name
+      }
+      user {
+        id
+        name
+      }
+    }
+  }
+`;
 
-const AbsenceProgressBar: React.FC<{ absences: number }> = ({ absences }) => {
-  const progress = (absences / MAX_ABSENCES) * 100;
-  
-  return (
-    <View style={styles.progressBarContainer}>
-      <View style={styles.progressBarBackground}>
-        <View 
-          style={[
-            styles.progressBarFill,
-            { width: `${progress}%` },
-            absences >= MAX_ABSENCES && styles.progressBarFillMax
-          ]} 
-        />
-      </View>
-      <Text style={styles.progressText}>{absences}/{MAX_ABSENCES}</Text>
-    </View>
-  );
-};
+const DELETE_CLASS = gql`
+  mutation DeleteClass($where: ClassWhereUniqueInput!) {
+    deleteClass(where: $where) {
+      id
+      name
+    }
+  }
+`;
 
-const AttendanceScreen: React.FC = () => {
+const ClassScreen: React.FC = () => {
   const route = useRoute<ClassScreenRouteProp>();
   const navigation = useNavigation();
 
+  const { id } = route.params || {};
 
-  const defaultParams = {
-    subject: "Sin nombre",
-    schedule: "Horario no disponible",
-    classroom: "Aula no disponible"
+  if (!id) {
+    Alert.alert('Error', 'ID de clase no encontrado.');
+    navigation.goBack();
+    return null;
+  }
+
+  const { loading: classLoading, error: classError, data: classData } = useQuery(GET_CLASS_DETAILS, {
+    variables: { where: { id: { equals: id } } },
+  });
+
+  const { loading: attendanceLoading, error: attendanceError, data: attendanceData } = useQuery(GET_ATTENDANCES, {
+    variables: { where: { class: { id: { equals: id } } } },
+  });
+
+  const [deleteClass] = useMutation(DELETE_CLASS, {
+    onCompleted: () => {
+      Alert.alert('Éxito', 'La clase ha sido eliminada.');
+      navigation.goBack();
+    },
+    onError: (error) => {
+      Alert.alert('Error', error.message);
+    },
+  });
+
+  const handleDeleteClass = () => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que deseas eliminar esta clase?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            deleteClass({ variables: { where: { id } } });
+          },
+        },
+      ]
+    );
   };
 
- 
-  const { subject, schedule, classroom } = route.params || defaultParams;
-
-  const courseInfo = {
-    name: subject,
-    schedule: schedule,
-    classroom: classroom,
-    group: "ISC09A",
-    maxAbsences: MAX_ABSENCES,
-    totalStudents: 24,
+  const handleStudentClick = (studentId: string) => {
+    router.push({
+      pathname: '/(tabs)/StudentProfile',
+      params: { studentId },
+    });
   };
 
-  const attendanceRecords: AttendanceRecord[] = [
-    {
-      id: '1',
-      studentName: 'Sara Itzel García Vidal',
-      accumulatedAbsences: 3,
-      isPresent: true,
-    },
-    {
-      id: '2',
-      studentName: 'Sara Itzel García Vidal',
-      accumulatedAbsences: 4,
-      isPresent: false,
-    },
-    {
-      id: '3',
-      studentName: 'Sara Itzel García Vidal',
-      accumulatedAbsences: 4,
-      isPresent: true,
-    },
-    {
-      id: '4',
-      studentName: 'Sara Itzel García Vidal',
-      accumulatedAbsences: 2,
-      isPresent: false,
-    },
-  ];
+  if (classLoading || attendanceLoading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#6200EE" />
+        <Text style={styles.loaderText}>Cargando información...</Text>
+      </View>
+    );
+  }
+
+  if (classError || attendanceError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>
+          Error: {classError?.message || attendanceError?.message}
+        </Text>
+      </View>
+    );
+  }
+
+  const classInfo = classData?.classes?.[0];
+  const attendances = attendanceData?.attendances || [];
+
+  const renderAttendanceCard = (studentId: string, studentName: string, count: number) => {
+    const progress = count / 10;
+    const isCritical = count >= 10;
+
+    return (
+      <Card
+        style={styles.attendanceCard}
+        key={studentId}
+        onPress={() => handleStudentClick(studentId)}
+      >
+        <Card.Content>
+          <View style={styles.attendanceRow}>
+            <Text style={styles.attendanceName}>{studentName}</Text>
+            <Text style={[styles.attendanceCount, isCritical && styles.criticalText]}>
+              {count}/10
+            </Text>
+          </View>
+          <ProgressBar
+            progress={progress}
+            color={isCritical ? '#F44336' : '#6200EE'}
+            style={styles.progressBar}
+          />
+        </Card.Content>
+      </Card>
+    );
+  };
+
+  const attendanceCounts: { [key: string]: { name: string; count: number } } = {};
+  attendances.forEach((attendance: any) => {
+    const userId = attendance.user.id;
+    const userName = attendance.user.name;
+
+    if (!attendanceCounts[userId]) {
+      attendanceCounts[userId] = { name: userName, count: 1 };
+    } else {
+      attendanceCounts[userId].count += 1;
+    }
+  });
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="chevron-back" size={24} color="black" />
-        </TouchableOpacity>
-        <Text style={styles.title}>{courseInfo.name}</Text>
-      </View>
+      {/* Appbar */}
+      <Appbar.Header style={styles.appbarHeader}>
+        <Appbar.BackAction color="white" onPress={() => router.push('/(tabs)/TeacherClassesScreen')} />
+        <Appbar.Content title={classInfo?.name || 'Clase'} titleStyle={styles.appbarTitle} />
+      </Appbar.Header>
 
-      <View style={styles.courseInfo}>
-        <Text style={styles.courseInfoText}>Horario: {courseInfo.schedule}</Text>
-        <Text style={styles.courseInfoText}>Aula: {courseInfo.classroom}</Text>
-        <Text style={styles.courseInfoText}>Carrera y Grupo: {courseInfo.group}</Text>
-        <Text style={styles.courseInfoText}>Límite de inasistencias: {courseInfo.maxAbsences}</Text>
-      </View>
+      {/* Class Information */}
+      <Card style={styles.courseInfoCard}>
+        <Card.Content>
+          <Text variant="bodyMedium">Nombre: {classInfo?.name || 'No disponible'}</Text>
+          <Text variant="bodyMedium">Horario: {classInfo?.schedule || 'No disponible'}</Text>
+          <Text variant="bodyMedium">Descripción: {classInfo?.description || 'No disponible'}</Text>
+          <Text variant="bodyMedium">Docente: {classInfo?.teacher?.name || 'No asignado'}</Text>
+        </Card.Content>
+      </Card>
 
-      <View style={styles.totalCounter}>
-        <Text style={styles.totalText}>TOTAL</Text>
-        <Text style={styles.totalNumber}>{courseInfo.totalStudents}</Text>
-        <Text style={styles.totalText}>ASISTENCIAS</Text>
-      </View>
-
-      <View style={styles.listHeader}>
-        <Text style={styles.listHeaderText}>Asistencias - Noviembre 05</Text>
-        <TouchableOpacity>
-          <Ionicons name="search" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView style={styles.attendanceList}>
-        {attendanceRecords.map((record) => (
-          <View key={record.id} style={styles.attendanceRow}>
-            <View style={styles.studentInfo}>
-              <Text style={styles.studentName}>{record.studentName}</Text>
-              <View style={styles.absencesContainer}>
-                <Text style={styles.absencesLabel}>Inasistencias acumuladas</Text>
-                <AbsenceProgressBar absences={record.accumulatedAbsences} />
-              </View>
-            </View>
-            <View style={[styles.statusIndicator, record.isPresent ? styles.present : styles.absent]}>
-              {record.isPresent ? (
-                <Ionicons name="checkmark" size={24} color="white" />
-              ) : (
-                <Ionicons name="close" size={24} color="white" />
-              )}
-            </View>
-          </View>
-        ))}
+      {/* Attendance List */}
+      <ScrollView>
+        {Object.entries(attendanceCounts).map(([userId, { name, count }]) =>
+          renderAttendanceCard(userId, name, count)
+        )}
       </ScrollView>
+
+      {/* Delete Button */}
+      <Button
+        mode="contained"
+        onPress={handleDeleteClass}
+        style={styles.deleteButton}
+        icon="delete"
+      >
+        Eliminar Clase
+      </Button>
     </View>
   );
 };
@@ -150,123 +207,67 @@ const AttendanceScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F9FAFB',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  courseInfo: {
-    padding: 16,
-    backgroundColor: '#f8f8f8',
-  },
-  courseInfoText: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  totalCounter: {
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  totalText: {
-    fontSize: 12,
-    color: '#666',
-  },
-  totalNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginVertical: 4,
-  },
-  listHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  listHeaderText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  attendanceList: {
+  loaderContainer: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#6200EE',
+  },
+  appbarHeader: {
+    backgroundColor: '#1e3a63',
+  },
+  appbarTitle: {
+    color: 'white',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#F44336',
+    fontSize: 16,
+  },
+  courseInfoCard: {
+    margin: 16,
+    borderRadius: 8,
+  },
+  attendanceCard: {
+    margin: 16,
+    borderRadius: 8,
   },
   attendanceRow: {
     flexDirection: 'row',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 8,
   },
-  studentInfo: {
-    flex: 1,
-  },
-  studentName: {
+  attendanceName: {
     fontSize: 16,
-    marginBottom: 4,
+    fontWeight: '600',
   },
-  absencesContainer: {
-    marginTop: 4,
+  attendanceCount: {
+    fontSize: 14,
+    color: '#757575',
   },
-  absencesLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
+  criticalText: {
+    color: '#F44336',
   },
-  statusIndicator: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 16,
-  },
-  present: {
-    backgroundColor: '#4CAF50',
-  },
-  absent: {
-    backgroundColor: '#F44336',
-  },
-  progressBarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  progressBarBackground: {
-    flex: 1,
+  progressBar: {
     height: 8,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginRight: 8,
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: '#000000',
     borderRadius: 4,
   },
-  progressBarFillMax: {
-    backgroundColor: '#FF0000',
-  },
-  progressText: {
-    fontSize: 12,
-    color: '#666',
-    marginLeft: 8,
-    width: 30,
+  deleteButton: {
+    margin: 16,
+    borderRadius: 8,
+    backgroundColor: '#1e3a63',
   },
 });
 
-export default AttendanceScreen;
+export default ClassScreen;

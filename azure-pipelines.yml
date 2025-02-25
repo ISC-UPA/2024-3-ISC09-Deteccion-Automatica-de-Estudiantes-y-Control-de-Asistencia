@@ -1,5 +1,5 @@
 trigger:
-- feature/Docker
+- Develop
 
 resources:
 - repo: self
@@ -19,24 +19,30 @@ stages:
   - job: Build
     displayName: Build
     steps:
+
+    #Build Frontend Docker Image
     - task: Docker@2
-      displayName: Build Docker image
+      displayName: Build Frontend Docker Image
       inputs:
         containerRegistry: 'classtrackapi'
         command: 'build'
-        Dockerfile: '**/backend/Dockerfile'
-        arguments: '-t classtrackapi.azurecr.io/classtrack-api:latest'
+        Dockerfile: '**/ClassTrack/Dockerfile'
+        arguments: '-t classtrackapi.azurecr.io/classtrack-frontend2:latest'
+
+    # Push Frontend Docker Image
     - task: Docker@2
-      displayName: Push Docker image
+      displayName: Push Frontend Docker Image
       inputs:
         containerRegistry: 'classtrackapi'
         command: 'push'
-        repository: 'classtrack-api'
-        tags: 'latest'
+        repository: 'classtrack-frontend2'
+        tags: latest
+
+    # Deploy Frontend Container
     - task: AzureWebAppContainer@1
-      displayName: Deploy Docker image to Azure Web App
+      displayName: Deploy Frontend Container
       inputs:
         azureSubscription: 'Azure for Students(8c757b97-b103-445f-9aa8-d6cff021ddcf)'
-        appName: 'ClassTrack-API-Alumnos'
-        containers: 'classtrackapi.azurecr.io/classtrack-api:latest'
-        appSettings: '-Port 3000'
+        appName: 'ClassTrack'
+        containers: classtrackapi.azurecr.io/classtrack-frontend2:latest
+        appSettings: '-Port 8081'

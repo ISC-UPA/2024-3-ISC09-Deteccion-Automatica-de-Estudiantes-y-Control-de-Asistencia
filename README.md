@@ -1,8 +1,13 @@
-# 2024-3-ISC09-Deteccion-Automatica-de-Estudiantes-y-Control-de-Asistencia
+# 2024-3-ISC09-Automatic-Student-Detection-And-Attendance-Control
+
+<p align="center">
+  <img src="./ClassTrack/assets/images/logo.png" alt="ClassTrack Logo" />
+</p>
+
 
 ## Overview
 
-This monorepo contains multiple packages related to the ViveHUB application. The main packages are:
+This monorepo contains multiple packages related to the **ClassTrack** application. The main packages are:
 
 - `RaspberryApp`: Placeholder for Raspberry Pi related applications.
 - `backend`: Backend API built with KeystoneJS.
@@ -18,18 +23,18 @@ This directory is currently a placeholder for future Raspberry Pi related applic
 
 #### backend
 
-This package contains the backend API for the ViveHUB application. It is built using KeystoneJS.
+This package contains the backend API for the ClassTrack application. It is built using KeystoneJS.
 
 - **Main Files:**
   - `keystone.ts`: KeystoneJS configuration and setup.
   - `schema.graphql`: GraphQL schema definitions.
   - `schema.prisma`: Prisma schema definitions.
 
-For more details, refer to the [README.md](packages/vive-hub-api/README.md) in the `vive-hub-api` directory.
+For more details, refer to the [README.md](packages/backend/README.md) in the `backend` directory.
 
 #### ClassTrack
 
-This package contains the frontend application for the ViveHUB platform. It is built using React.
+This package contains the frontend application for the ClassTrack platform. It is built using React.
 
 - **Main Files:**
   - `app/`: Contains the main application layout and pages.
@@ -41,55 +46,97 @@ This package contains the frontend application for the ViveHUB platform. It is b
   - `tsconfig.json`: TypeScript configuration file.
   - `babel.config.js`: Babel configuration file.
 
-For more details, refer to the [README.md](packages/vive-hub-app/README.md) in the `vive-hub-app` directory.
+For more details, refer to the [README.md](packages/ClassTrack/README.md) in the `ClassTrack` directory.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js
-- Yarn
+Before starting, make sure you have the following:
+
+- **Node.js**
+- **Yarn** or **npm**
+- **Expo CLI** (for the frontend application)
+- **Python 3** (for Raspberry Pi scripts)
+- **Raspberry Pi** (for the hardware integration)
 
 ### Installation
 
 1. Clone the repository:
-    ```sh
-    git clone <repository-url>
-    cd 2024-3-PM-ViveHUBApp
-    ```
 
-2. Install dependencies:
-    ```sh
-    yarn install
-    ```
+        git clone <repository-url>
+        cd 2024-3-ISC09-Deteccion-Automatica-de-Estudiantes-y-Control-de-Asistencia
+
+
+2. Install dependencies for both **/backend** and **/ClassTrack**:
+
+   If using **Yarn**:
+
+        yarn install
+
+   If using **NPM**:
+
+        npm install
+
 
 ### Running the Applications
 
-#### Backend (vive-hub-api)
+#### Backend (backend)
 
-Navigate to the `vive-hub-api` directory and start the KeystoneJS server:
+1. Navigate to the `backend` directory and start the KeystoneJS server:
+
+   
+        cd /backend
+
+2. Dependign on what your're using:
+
+    - Using Yarn:
+        
+        ```sh
+        yarn start
+        ```
+
+    - Using NPM:
+        
+        ```sh
+        npx keystone dev
+        ```
+        
+
+#### Frontend (ClassTrack)
+
+1. Navigate to the `ClassTrack` directory and start the React Native App:
+
+        cd ClassTrack
+
+2. Dependign on what your're using:
+
+    - Using Yarn:
+        
+        ```sh
+        yarn start
+        ```
+
+    - Using NPM:
+        
+        ```sh
+        npx expo start
+        ```
+#### **RaspberryPi Setup (RaspberryApp)**
+
+1. Clone the repository to your Raspberry Pi:
 
     ```sh
-    cd packages/vive-hub-api
-    yarn start
+    git clone <repository-url>
+        cd 2024-3-ISC09-Deteccion-Automatica-de-Estudiantes-y-Control-de-Asistencia/RaspberryApp
     ```
 
-#### Frontend (vive-hub-app)
+2. Install Python dependencies.
 
-Navigate to the `vive-hub-app` directory and start the React Native App:
+3. Run the Raspberry Pi scripts to activate the autoamtic student detection
 
     ```sh
-    cd packages/vive-hub-api
-    yarn start
+    python3 main.py
     ```
+---
 
-For Android:
-
-    ```sh
-    yarn android
-    ```
-For iOS:
-
-    ```sh
-    yarn ios
-    ```
